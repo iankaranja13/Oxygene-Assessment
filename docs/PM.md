@@ -96,7 +96,7 @@ _As the events manager, I want the app to cope with a messy guest export, so tha
 | **Must**   | Normalization of the guest export; never crash on bad data         | Done                                |
 | **Must**   | Mobile first, accessible, brand tokens, live URL                   | Done                                |
 | **Should** | Walk-in guests                                                     | Done                                |
-| **Should** | Live sync across devices (Supabase)                                | Built; connection pending (README)  |
+| **Should** | Live sync across devices (Supabase)                                | Done                                |
 | **Should** | Staff PIN to keep attendees out of staff screens                   | Done (deterrent only)               |
 | **Should** | Reset demo data                                                    | Done                                |
 | **Could**  | Real QR scanning with the camera                                   | Not done (typed code stands in)     |

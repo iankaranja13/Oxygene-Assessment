@@ -10,6 +10,8 @@
 Poll link for attendees: https://oxygene-assessment.vercel.app/poll (QR code: [`docs/poll-qr.png`](docs/poll-qr.png))
 Staff PIN for `/usher` and `/organizer`: **2026** (demo value)
 
+The live site syncs across devices through **Supabase** (the staff header shows a **Live** badge): a vote on a phone appears on the organizer's screen in about a second.
+
 ## Try it in two minutes
 
 1. Open `/organizer` on a laptop (PIN `2026`). Under **Poll controls** pick a question, then **Open voting**.
@@ -106,12 +108,13 @@ No UI or charting library: plain CSS with design tokens and CSS Modules.
 
 ## Known limitations (stated honestly)
 
-- **Sync without Supabase:** localStorage only syncs between tabs of one browser. A vote cast on a phone will not reach a laptop unless Supabase is connected.
+- **Sync without Supabase:** run locally without Supabase keys, the app uses localStorage, which only syncs between tabs of one browser. (The live site has Supabase connected.)
 - **No real authentication:** the staff PIN is compiled into the JavaScript, so it deters casual attendees but is not security. With Supabase, the tables are writable by anyone holding the public key (Row Level Security is on, with open demo policies; votes can only be added through a database function that checks the poll is open).
 - **No real QR scanning:** typing the code stands in for scanning. A camera scanner would call the same `checkInByCode` function.
 - **Double-vote prevention is per device:** a private window or cleared browser data allows another vote. Real prevention needs identity (login or a one-time code per guest).
 - **Guest list is bundled at build time:** changing it needs a redeploy (about a minute on Vercel).
 - **Offline:** the guest list keeps working once loaded, but check-ins made while offline are rejected with an error (not queued) when using Supabase.
+- **Bundle size:** about 157 kB gzipped, mostly the Supabase client. Fine on 4G; code-splitting it is a next step.
 - **Walk-ins** can't be edited or deleted (Undo un-checks them; reset clears them).
 - **Brand guide and guest data are stand-ins**, generated because the real files weren't supplied.
 - **Not tested** with a real screen reader on a phone or with real ushers at a door.

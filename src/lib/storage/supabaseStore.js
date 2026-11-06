@@ -53,6 +53,8 @@ export function createSupabaseStore({ url, key, client = createClient(url, key) 
   let state = EMPTY_SHARED_STATE;
   let hasLoaded = false;
   let isChannelLive = false;
+  // Separate from "not live yet": only an actual failure should alarm staff with "Offline".
+  let hasChannelFailed = false;
   let lastFetchFailed = false;
   let hasStarted = false;
 
@@ -108,9 +110,11 @@ export function createSupabaseStore({ url, key, client = createClient(url, key) 
     channel.subscribe((channelStatus) => {
       if (channelStatus === 'SUBSCRIBED') {
         isChannelLive = true;
+        hasChannelFailed = false;
         refreshAll(); // catch up on anything missed while disconnected
       } else if (CHANNEL_FAILURES.includes(channelStatus)) {
         isChannelLive = false;
+        hasChannelFailed = true;
         notify();
       }
     });
@@ -156,9 +160,9 @@ export function createSupabaseStore({ url, key, client = createClient(url, key) 
     },
 
     getConnectionStatus() {
-      if (lastFetchFailed) return CONNECTION_STATUS.OFFLINE;
-      if (!hasLoaded) return CONNECTION_STATUS.CONNECTING;
-      return isChannelLive ? CONNECTION_STATUS.LIVE : CONNECTION_STATUS.OFFLINE;
+      if (lastFetchFailed || hasChannelFailed) return CONNECTION_STATUS.OFFLINE;
+      if (hasLoaded && isChannelLive) return CONNECTION_STATUS.LIVE;
+      return CONNECTION_STATUS.CONNECTING;
     },
 
     async setCheckIn(guestId, record) {
