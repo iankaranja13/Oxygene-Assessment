@@ -1,16 +1,20 @@
-// Per-device memory of how this phone voted, used to prevent double voting and to show
-// "You chose: X" after a reload. Always stored locally (even when votes go to Supabase):
-// it describes this device, not the event.
+// Per-device memory of how this phone voted, so it can show "You chose: X" after a
+// reload without asking the server. The real one-vote rule is enforced by the store
+// (per check-in code, in the database with Supabase); this is just a display cache.
 //
-// Votes are remembered per voting round. "Reset demo data" starts a new round, so old
-// entries stop matching on every device, including phones the organizer can't reach.
-// Known limitation: clearing browser data (or a private window) allows another vote.
+// Entries are keyed by voting round, poll and check-in code. "Reset demo data" starts a
+// new round, so old entries stop matching on every device. Two guests sharing a phone
+// each get their own entry.
 import { browserLocalStorage } from './safeStorage.js';
 
 const DEVICE_VOTES_KEY = 'device-votes';
 
-function voteKey(votingRound, pollId) {
-  return `${votingRound}/${pollId}`;
+/** Stored when the server says this code already voted (e.g. from another phone). */
+export const VOTED_ELSEWHERE = -1;
+
+/** @param {{ votingRound: string, pollId: string, voterCode: string }} vote */
+function voteKey({ votingRound, pollId, voterCode }) {
+  return `${votingRound}/${pollId}/${voterCode}`;
 }
 
 /** @returns {Record<string, number>} only well-formed entries */
@@ -22,17 +26,19 @@ function readDeviceVotes(storage) {
   );
 }
 
-/** @returns {number | null} the option this device chose, or null if it hasn't voted */
-export function getDeviceVote(votingRound, pollId, storage = browserLocalStorage) {
-  return readDeviceVotes(storage)[voteKey(votingRound, pollId)] ?? null;
+/**
+ * @param {{ votingRound: string, pollId: string, voterCode: string }} vote
+ * @returns {number | null} the option chosen, VOTED_ELSEWHERE, or null if not voted
+ */
+export function getDeviceVote(vote, storage = browserLocalStorage) {
+  return readDeviceVotes(storage)[voteKey(vote)] ?? null;
 }
 
-/** @returns {boolean} false if the flag couldn't be saved (storage blocked) */
-export function recordDeviceVote(votingRound, pollId, optionIndex, storage = browserLocalStorage) {
-  const deviceVotes = readDeviceVotes(storage);
+/** @returns {boolean} false if it couldn't be saved (storage blocked) */
+export function recordDeviceVote(vote, optionIndex, storage = browserLocalStorage) {
   return storage.writeJson(DEVICE_VOTES_KEY, {
-    ...deviceVotes,
-    [voteKey(votingRound, pollId)]: optionIndex,
+    ...readDeviceVotes(storage),
+    [voteKey(vote)]: optionIndex,
   });
 }
 

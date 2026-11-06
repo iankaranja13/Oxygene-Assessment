@@ -14,9 +14,14 @@
  *   walkIns: object[],
  *   pollState: PollState,
  *   votes: Record<string, number[]>,
+ *   customPolls: { id: string, question: string, options: string[] }[],
+ *   votedCodes: Record<string, string[]>,
  * }} SharedState
  *   checkIns: per guest id, overrides the check-in status from the guest list.
  *   votes: per poll id, a count for each answer option (index matches the option).
+ *   customPolls: polls the organizer created on the dashboard (seed polls come from /data).
+ *   votedCodes: per poll id, check-in codes that have voted (local store only; Supabase
+ *     keeps these in the database where phones can't read them).
  */
 
 export const INITIAL_VOTING_ROUND = 'initial';
@@ -37,6 +42,8 @@ export const EMPTY_SHARED_STATE = Object.freeze({
     votingRound: INITIAL_VOTING_ROUND,
   }),
   votes: Object.freeze({}),
+  customPolls: Object.freeze([]),
+  votedCodes: Object.freeze({}),
 });
 
 function isPlainObject(value) {
@@ -97,4 +104,29 @@ export function addVote(votes, pollId, optionIndex) {
   while (counts.length <= optionIndex) counts.push(0);
   counts[optionIndex] += 1;
   return { ...votes, [pollId]: counts };
+}
+
+/** Keeps polls shaped like { id, question, options: string[] }; full validation happens in usePolls. */
+export function sanitizeCustomPolls(value) {
+  if (!Array.isArray(value)) return EMPTY_SHARED_STATE.customPolls;
+  return value.filter(
+    (poll) =>
+      isPlainObject(poll) &&
+      typeof poll.id === 'string' &&
+      typeof poll.question === 'string' &&
+      Array.isArray(poll.options) &&
+      poll.options.every((option) => typeof option === 'string'),
+  );
+}
+
+/** Keeps { pollId: [code, ...] } with string codes only. */
+export function sanitizeVotedCodes(value) {
+  if (!isPlainObject(value)) return EMPTY_SHARED_STATE.votedCodes;
+  const votedCodes = {};
+  for (const [pollId, codes] of Object.entries(value)) {
+    if (Array.isArray(codes)) {
+      votedCodes[pollId] = codes.filter((code) => typeof code === 'string');
+    }
+  }
+  return votedCodes;
 }

@@ -1,15 +1,19 @@
-// Attendee poll screen. Shows exactly one of four states (see getPollViewState):
-// no poll yet, the open question, "you've voted", or "voting closed".
+// Attendee poll screen.
+//   1. Enter your check-in code (once per phone; verified by the store/database).
+//   2. Then exactly one of: no poll yet, the open question, "you've voted", "voting closed".
 // It updates by itself when the organizer changes the poll: no refresh needed.
+import { useState } from 'react';
 import EmptyState from '../../components/EmptyState.jsx';
 import { PollIcon } from '../../components/icons.jsx';
 import { useConnectionStatus } from '../../hooks/useConnectionStatus.js';
 import { usePageTitle } from '../../hooks/usePageTitle.js';
 import { usePolls } from '../../hooks/usePolls.js';
-import { CONNECTION_STATUS } from '../../lib/storage/localStore.js';
+import { CONNECTION_STATUS, STORE_ERRORS } from '../../lib/storage/localStore.js';
 import { POLL_VIEW_STATES, getPollViewState } from '../../lib/votes.js';
-import PollQuestion from './PollQuestion.jsx';
+import AttendeeCodeForm from './AttendeeCodeForm.jsx';
 import styles from './PollPage.module.css';
+import PollQuestion from './PollQuestion.jsx';
+import { useAttendeeCode } from './useAttendeeCode.js';
 import { usePollVote } from './usePollVote.js';
 import VoteConfirmation from './VoteConfirmation.jsx';
 
@@ -17,14 +21,35 @@ export default function PollPage() {
   usePageTitle('Live poll');
   const { activePoll, pollState } = usePolls();
   const connectionStatus = useConnectionStatus();
-  const vote = usePollVote(activePoll, pollState.votingRound);
+  const attendee = useAttendeeCode();
+  // Shown on the code form if a remembered code stops being accepted.
+  const [codeNotice, setCodeNotice] = useState(null);
+
+  function handleCodeRejected() {
+    setCodeNotice(STORE_ERRORS.INVALID_CODE);
+    attendee.forget();
+  }
+
+  const vote = usePollVote(activePoll, pollState.votingRound, attendee.code, handleCodeRejected);
   const viewState = getPollViewState({
     activePoll,
     isOpen: pollState.isOpen,
     hasVoted: vote.hasVoted,
   });
 
-  return <div className={styles.page}>{renderView()}</div>;
+  return (
+    <div className={styles.page}>
+      {renderView()}
+      {attendee.code && connectionStatus !== CONNECTION_STATUS.CONNECTING && (
+        <p className={styles.signedIn}>
+          Voting with code <strong>{attendee.code}</strong>.{' '}
+          <button type="button" className={styles.linkButton} onClick={attendee.forget}>
+            Not you? Use a different code
+          </button>
+        </p>
+      )}
+    </div>
+  );
 
   function renderView() {
     // Until the first snapshot arrives we don't know if a poll is open: say so, rather
@@ -34,6 +59,17 @@ export default function PollPage() {
         <EmptyState icon={PollIcon} title="Loading the live poll" headingLevel={1}>
           One moment&hellip;
         </EmptyState>
+      );
+    }
+    if (!attendee.code) {
+      return (
+        <AttendeeCodeForm
+          notice={codeNotice}
+          onVerified={(code) => {
+            setCodeNotice(null);
+            attendee.remember(code);
+          }}
+        />
       );
     }
     switch (viewState) {

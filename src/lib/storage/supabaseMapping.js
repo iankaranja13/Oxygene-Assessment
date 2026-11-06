@@ -4,6 +4,7 @@
 import {
   addVote,
   sanitizeCheckIns,
+  sanitizeCustomPolls,
   sanitizePollState,
   sanitizeVotes,
   sanitizeWalkIns,
@@ -53,4 +54,11 @@ export function checkInToRow(guestId, { checkedIn, at }) {
 /** App poll state -> poll_state row update */
 export function pollStateToRow({ activePollId, isOpen, votingRound }) {
   return { active_poll_id: activePollId, is_open: isOpen, voting_round: votingRound };
+}
+
+/** polls rows -> organizer-created polls */
+export function customPollsFromRows(rows = []) {
+  return sanitizeCustomPolls(
+    rows.map((row) => ({ id: row.id, question: row.question, options: row.options })),
+  );
 }

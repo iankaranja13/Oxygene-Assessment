@@ -19,6 +19,7 @@
     'checkins'
     'controls'
     'results'
+    'create'
     'notes'
     'reset';
 }
@@ -31,6 +32,9 @@
 }
 .results {
   grid-area: results;
+}
+.create {
+  grid-area: create;
 }
 .notes {
   grid-area: notes;
@@ -46,6 +50,7 @@
     grid-template-areas:
       'checkins results'
       'controls results'
+      'create   results'
       'notes    results'
       'reset    results';
     align-items: start;

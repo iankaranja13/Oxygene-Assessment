@@ -54,8 +54,13 @@ flowchart TD
 flowchart TD
     A([Scan QR → /poll]) --> B{Connected?}
     B -- Loading --> C[Loading the live poll…]
-    C --> D
-    B -- Yes --> D{Poll state}
+    C --> P
+    B -- Yes --> P{Code remembered<br/>on this phone?}
+    P -- No --> Q[Join the live poll:<br/>enter check-in code]
+    Q --> R{Real guest code?}
+    R -- No --> S[We couldn't find that code<br/>check ticket / ask an usher] --> Q
+    R -- Yes --> D
+    P -- Yes --> D{Poll state}
     D -- No active poll --> E[No poll right now<br/>updates by itself]
     D -- Open, not voted --> F[Question + big answer cards]
     F --> G[Choose an answer]
@@ -63,7 +68,8 @@ flowchart TD
     H --> I{Accepted?}
     I -- Yes --> J[Thanks, your vote is in<br/>You chose: X]
     I -- Voting just closed --> K[Voting is closed for this poll]
-    D -- Already voted on this device --> J
+    I -- Code already voted elsewhere --> J2[Your check-in code has<br/>already voted in this poll]
+    D -- This code already voted --> J
     D -- Closed --> L[Voting has closed]
     E -. organizer opens a poll .-> F
     J -. organizer shows next poll .-> F
@@ -81,6 +87,7 @@ flowchart LR
     F --> G[Live results update]
     G --> H[Close voting]
     B --> I[Reset demo data → confirm]
+    B --> N[Create a poll: question + 2–6 answers] --> D
 ```
 
 ---

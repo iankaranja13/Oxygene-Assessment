@@ -2,7 +2,7 @@
 // Switching polls always starts with voting closed, so a question never goes live by accident.
 import Badge from '../../components/Badge.jsx';
 import { Button } from '../../components/Button.jsx';
-import { CheckIcon, LockIcon } from '../../components/icons.jsx';
+import { CheckIcon, CloseIcon, LockIcon } from '../../components/icons.jsx';
 import Panel from './Panel.jsx';
 import styles from './PollControls.module.css';
 
@@ -14,9 +14,10 @@ function totalVotes(counts = []) {
 
 /**
  * @param {{ polls: object[], pollState: object, votes: Record<string, number[]>,
- *           onChange: (changes: object) => void, isSaving: boolean }} props
+ *           onChange: (changes: object) => void, onDelete: (pollId: string) => void,
+ *           isSaving: boolean }} props
  */
-export default function PollControls({ polls, pollState, votes, onChange, isSaving }) {
+export default function PollControls({ polls, pollState, votes, onChange, onDelete, isSaving }) {
   const { activePollId, isOpen } = pollState;
   const hasActivePoll = activePollId !== null && polls.some((poll) => poll.id === activePollId);
 
@@ -60,23 +61,37 @@ export default function PollControls({ polls, pollState, votes, onChange, isSavi
           <span className={styles.optionText}>No poll (waiting screen)</span>
         </label>
         {polls.map((poll) => (
-          <label key={poll.id} className={styles.option}>
-            <input
-              type="radio"
-              name="active-poll"
-              value={poll.id}
-              checked={activePollId === poll.id}
-              onChange={() => onChange({ activePollId: poll.id, isOpen: false })}
-            />
-            <span className={styles.optionText}>
-              {poll.question}
-              <span className={styles.voteCount}>
-                {totalVotes(votes[poll.id]) === 1
-                  ? '1 vote'
-                  : `${totalVotes(votes[poll.id])} votes`}
+          <div key={poll.id} className={styles.optionRow}>
+            <label className={styles.option}>
+              <input
+                type="radio"
+                name="active-poll"
+                value={poll.id}
+                checked={activePollId === poll.id}
+                onChange={() => onChange({ activePollId: poll.id, isOpen: false })}
+              />
+              <span className={styles.optionText}>
+                {poll.question}
+                <span className={styles.voteCount}>
+                  {totalVotes(votes[poll.id]) === 1
+                    ? '1 vote'
+                    : `${totalVotes(votes[poll.id])} votes`}
+                  {poll.isCustom && ' · created here'}
+                </span>
               </span>
-            </span>
-          </label>
+            </label>
+            {/* Only created polls with no votes, not on screen, can be deleted (results are never lost). */}
+            {poll.isCustom && totalVotes(votes[poll.id]) === 0 && poll.id !== activePollId && (
+              <button
+                type="button"
+                className={styles.deleteButton}
+                onClick={() => onDelete(poll.id)}
+                aria-label={`Delete poll: ${poll.question}`}
+              >
+                <CloseIcon size={20} />
+              </button>
+            )}
+          </div>
         ))}
       </fieldset>
     </Panel>

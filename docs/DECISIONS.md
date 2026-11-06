@@ -220,3 +220,31 @@ Newest entries at the bottom.
 - **Still not security (honest):** both PINs are in the main JavaScript file, the staff files are publicly reachable by URL, and the database trusts anyone with the public key. This stops casual misuse, not a determined person.
 - **Real fix (next step):** Supabase Auth with usher/organizer accounts, the guest list stored in the database, and Row Level Security per role (ushers write check-ins; only organizers change polls or reset; attendees can only read the active question and call `cast_vote`).
 - **Rejected:** Hiding the dashboard link only (an usher could still type the URL); fetching the guest list from `/public` after the PIN (the file would sit at a public URL with no benefit over a lazy chunk).
+
+## D28. Attendees vote with their own check-in code; organizers create polls
+
+- **Request:** Ushers use a PIN to check guests in (unchanged); attendees enter a code to take part in polls the organizer/presenter has set up.
+- **Decision (attendee code):**
+  - Each attendee enters **their own ticket check-in code** on `/poll` (chosen over a shared room code because it gives one vote per guest, not per phone).
+  - Codes are normalized like the guest list, verified by the store, and remembered on the phone, with a "Not you?" switch.
+- **How it stays private (Supabase):**
+  - Valid codes live in a `guest_codes` table loaded by `npm run db:guest-codes`.
+  - Who voted lives in `poll_voters`.
+  - Both tables have RLS on with no policies and no grants, and are not broadcast by Realtime, so phones can't read them. Phones can only call `verify_attendee_code` and `cast_vote`, which run with the owner's rights.
+  - `cast_vote` checks the code, that the poll is open, and inserts `(poll, code)` with a primary key, so a second vote from the same code (any phone, any window) returns `already-voted`.
+  - The public `votes` table holds only poll and option, never the code.
+- **Verified:**
+  - With the public key: reading `guest_codes` or `poll_voters` is "permission denied"; inserting a vote directly is blocked by RLS; a fake code returns `invalid-code`; the same code twice returns `already-voted`.
+  - In browsers: a fake code is refused on screen; the same code on a second phone shows "already voted" and the count stays at 2, not 3.
+  - The attendee downloads only the main file, which contains 0 codes and 0 guest names.
+- **Decision (poll creation):**
+  - The dashboard has **Create a poll** (question plus 2–6 answers, validated by `validatePollDraft`), stored in a `polls` table (local: `custom-polls`) and shown alongside the seed polls.
+  - Created polls can be deleted only if they have no votes and aren't on screen, enforced in the UI, the local store and the `delete_custom_poll` function.
+  - "Reset demo data" keeps created polls (prepared content) and clears activity.
+- **Local mode:** Without Supabase, the code check loads the guest list on demand in the browser, which is fine for a single-browser demo but means codes reach that browser. Stated honestly.
+- **Limits (honest):**
+  - Guests sharing a code (one pair in the sample data) share one vote.
+  - Codes are short and there's no rate limiting, so a determined person could guess another guest's code.
+  - Walk-ins have no code, so they can't vote.
+  - The PINs are still a deterrent only (D27).
+- **Rejected:** A shared room code (simpler, but one vote per phone only); sending the guest list to phones to check codes locally (leaks every code); storing the voter code in `votes` (that table is public and broadcast).

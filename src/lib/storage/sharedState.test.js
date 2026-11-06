@@ -4,7 +4,9 @@ import {
   INITIAL_VOTING_ROUND,
   addVote,
   sanitizeCheckIns,
+  sanitizeCustomPolls,
   sanitizePollState,
+  sanitizeVotedCodes,
   sanitizeVotes,
   sanitizeWalkIns,
 } from './sharedState.js';
@@ -66,5 +68,19 @@ describe('addVote', () => {
 
   it('starts counts for a poll with no votes yet', () => {
     expect(addVote({}, 'p', 2)).toEqual({ p: [0, 0, 1] });
+  });
+});
+
+describe('custom poll and voted-code sanitizers', () => {
+  it('keep only well-formed custom polls', () => {
+    const good = { id: 'custom-1', question: 'Q?', options: ['A', 'B'] };
+    expect(sanitizeCustomPolls([good, { id: 'x', question: 'Q', options: [1] }, null])).toEqual([
+      good,
+    ]);
+    expect(sanitizeCustomPolls('nope')).toEqual([]);
+  });
+
+  it('keep only string codes', () => {
+    expect(sanitizeVotedCodes({ p: ['OXY-1', 2, null], q: 'x' })).toEqual({ p: ['OXY-1'] });
   });
 });

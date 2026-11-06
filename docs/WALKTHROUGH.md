@@ -15,7 +15,7 @@ A guided tour of the code, written so every part can be explained to a judge. De
 | Route        | Who                                 | What it does                                                                                       |
 | ------------ | ----------------------------------- | -------------------------------------------------------------------------------------------------- |
 | `/usher`     | Door staff (usher or organizer PIN) | Search guests or type a ticket code, check in with one tap, undo, add walk-ins                     |
-| `/poll`      | Attendees (no PIN)                  | See the active question, vote once per device, see a confirmation                                  |
+| `/poll`      | Attendees (their own check-in code) | Enter their ticket code, see the active question, vote once per guest, see a confirmation          |
 | `/organizer` | Events manager (organizer PIN only) | Live check-in count, live poll results, choose/open/close polls, reset demo data, guest data notes |
 
 **Stack:** React 19 + Vite, React Router, plain CSS (design tokens + CSS Modules), Vitest. Shared data lives behind one store interface: **localStorage** (syncs between tabs of one browser) or **Supabase** (syncs across devices in real time). Hosted on Vercel.
@@ -110,16 +110,17 @@ flowchart TD
 
 ### `src/lib/storage/`: where shared data lives
 
-| File                 | Purpose                                                                                        |
-| -------------------- | ---------------------------------------------------------------------------------------------- |
-| `safeStorage.js`     | Crash-proof wrapper around localStorage/sessionStorage with the `launchpad:v1:` key prefix     |
-| `sharedState.js`     | Shape of shared state, validators (`sanitize*`), `addVote`, voting-round ids                   |
-| `localStore.js`      | Store backed by localStorage, with cross-tab sync; also `CONNECTION_STATUS` and `STORE_ERRORS` |
-| `supabaseStore.js`   | Store backed by Supabase: snapshot, Realtime, optimistic writes with rollback                  |
-| `supabaseMapping.js` | Pure conversion between database rows and app state                                            |
-| `appStore.js`        | Picks Supabase or localStorage once at startup; the only store the UI imports                  |
-| `deviceFlags.js`     | "This device voted option X in poll Y, round Z" (double-vote prevention)                       |
-| `testBackends.js`    | Fake in-memory and always-failing storage backends for tests                                   |
+| File                 | Purpose                                                                                                   |
+| -------------------- | --------------------------------------------------------------------------------------------------------- |
+| `safeStorage.js`     | Crash-proof wrapper around localStorage/sessionStorage with the `launchpad:v1:` key prefix                |
+| `sharedState.js`     | Shape of shared state, validators (`sanitize*`), `addVote`, voting-round ids                              |
+| `localStore.js`      | Store backed by localStorage, with cross-tab sync; also `CONNECTION_STATUS` and `STORE_ERRORS`            |
+| `supabaseStore.js`   | Store backed by Supabase: snapshot, Realtime, optimistic writes with rollback                             |
+| `supabaseMapping.js` | Pure conversion between database rows and app state                                                       |
+| `appStore.js`        | Picks Supabase or localStorage once at startup; the only store the UI imports                             |
+| `deviceFlags.js`     | "Code C voted option X in poll Y, round Z" on this phone (display memory; the database enforces the rule) |
+| `attendeeCode.js`    | Remembers the attendee's verified check-in code on their phone                                            |
+| `testBackends.js`    | Fake in-memory and always-failing storage backends for tests                                              |
 
 ### `src/hooks/`
 
@@ -220,19 +221,20 @@ flowchart TD
 
 ### 4.5 Attendee poll
 
-1. `PollPage` combines `usePolls()` (active poll and whether it's open) with `usePollVote()` (has this device voted?). It asks `getPollViewState` which of four states to show: **no active poll**, **open**, **already voted**, or **closed** (D22).
-2. **While connecting** to Supabase it shows "Loading the live poll" instead of flashing "No poll right now".
-3. **Voting is two steps:** pick a radio card, then press **Submit vote**, because votes can't be changed (D20). The radio inputs are real `<input type="radio">` inside a `<fieldset>` whose `<legend>` contains the question `<h1>`, so arrow keys and screen readers work.
-4. `usePollVote.submitVote` **counts the vote first** (`appStore.castVote`), then **remembers it on the device** (`recordDeviceVote`). If the vote fails (for example, the organizer just closed voting), the device isn't locked out.
-5. **Device memory is per voting round.** Every "Reset demo data" sets a new `votingRound` in the shared poll state, and device entries are keyed `round/pollId`. After a reset, old entries stop matching on **every** phone, even ones the organizer can't reach (D21).
-6. **If storage is blocked,** the vote is remembered in memory for the life of the page.
+1. **Check-in code first.** `PollPage` shows `AttendeeCodeForm` until the phone has a verified code. The input is normalized with the same `normalizeCheckInCode` as the guest list (`1049`, `oxy1049` and `OXY-1049` all work), then checked with `appStore.verifyAttendeeCode`. With Supabase that calls the database function `verify_attendee_code`, which looks in the **private** `guest_codes` table; phones can't read that table and never download the guest list. A verified code is remembered on the phone (`attendeeCode.js`), with a "Not you? Use a different code" link (D28).
+2. **Then one of four states.** `usePolls()` (active poll, open or closed, seed plus organizer-created polls) and `usePollVote()` (has this code voted?) feed `getPollViewState`: **no active poll**, **open**, **already voted** or **closed** (D22). While connecting it shows "Loading the live poll".
+3. **Voting is two steps:** pick a radio card, then **Submit vote**, because votes can't be changed (D20). Real radio inputs in a `<fieldset>` whose `<legend>` holds the question `<h1>`.
+4. **One vote per guest, enforced by the database.** `castVote(pollId, option, code)` calls `cast_vote`, which checks the code is a guest's, the poll is active and open, and inserts a `(poll, code)` row into the private `poll_voters` table. Its primary key makes a second vote from the same code impossible, from any phone or private window. Results: `ok`, `invalid-code`, `closed`, `already-voted`.
+5. **The phone remembers its answer** (`deviceFlags.js`, keyed by voting round, poll and code) so "You chose: X" survives a reload. If the same code already voted on another phone, it shows "Your check-in code has already voted in this poll." This memory is only for display; the rule lives in the database.
+6. **Reset and rounds.** "Reset demo data" clears `poll_voters` and votes and starts a new `votingRound`, so every guest may vote again and old phone memories stop matching (D21).
 
 ### 4.6 Organizer dashboard
 
 - **`CheckInSummary`:** "34 of 146 checked in", the percentage, a progress bar, people still to arrive, and how many are walk-ins. From `countCheckIns`.
 - **`PollResults`:** `tallyVotes(poll, counts)` pairs each option with its count and percentage. The percentages come from `toPercentages`, which uses the largest-remainder method so they always total exactly 100. The bars are one brand colour; every bar has its number as text, and the leading answer is bold, so nothing is colour-only.
-- **`PollControls`:** Radio list of polls plus "No poll". **Selecting a poll always closes voting**, and a separate Open/Close button makes going live deliberate. Each poll shows its vote total.
-- **`ResetDemo`:** Inline "Reset everything? This can't be undone." On confirm it clears this device's vote flags and calls `appStore.resetAll()`, which clears check-ins, walk-ins and votes, resets poll state and starts a new voting round.
+- **`PollControls`:** Radio list of polls plus "No poll". **Selecting a poll always closes voting**, and a separate Open/Close button makes going live deliberate. Each poll shows its vote total. Polls the organizer created are marked "created here" and can be deleted only if they have no votes and aren't on screen (the database function `delete_custom_poll` enforces the same rule).
+- **`CreatePollForm`:** A question and 2 to 6 answers. `validatePollDraft` (in `lib/pollDrafts.js`) trims, rejects blanks, duplicates (ignoring case and accents) and over-long text; `createPollRecord` gives it a `custom-…` id. Stored in shared state (`polls` table in Supabase) so it appears on every device; usePolls validates it again with `normalizePolls` when reading (D28).
+- **`ResetDemo`:** Inline "Reset everything? This can't be undone." On confirm it clears this device's vote flags and calls `appStore.resetAll()`, which clears check-ins, walk-ins, votes and who-voted records, resets poll state and starts a new voting round. Polls the organizer created are kept.
 - **`DataNotes`:** Shows the normalization report: 152 rows became 146 guests, 3 duplicates merged, 3 rows skipped, 1 shared code, 2 shared names (D23).
 
 ### 4.7 Roles and PINs
@@ -318,10 +320,13 @@ The brief asked for localStorage, but localStorage can't sync between phones, an
 The second tap sees the guest already checked in once sync arrives, and gets "already checked in (time)" instead of overwriting the first time. If both writes land within the same instant, the database simply holds one `check_ins` row for that guest (last write wins, same result). No duplicate is possible because the row is keyed by guest id.
 
 **3. How do you prevent double voting, and what are the limits?**
-After a vote, the device stores which option it chose for that poll and voting round, and the poll screen then shows the thank-you instead of the question. The limit: a private window or cleared browser data allows another vote. Real prevention needs identity (login, or a one-time code per guest). IP addresses don't work because everyone shares venue Wi-Fi (D21).
+Each guest votes with their own check-in code, and the database allows one vote per code per poll (a primary key on `(poll_id, voter_code)` in a private table). A second phone or a private window with the same code is refused. Limits: guests who share a code (one pair in the sample data) share one vote; codes are 4 digits, so someone could guess another guest's code (there's no rate limiting); walk-ins have no code so can't vote. In local mode (no Supabase) the same rule runs in the browser (D28).
 
-**4. How does "Reset demo data" let every phone vote again?**
-It starts a new `votingRound` in the shared poll state. Phones store votes per round, so old entries stop matching everywhere, including phones the organizer can't touch (D21).
+**4. How does "Reset demo data" let everyone vote again?**
+The database function clears `votes` and the private `poll_voters` table, and starts a new `votingRound`. Phones key their remembered answers by round, so old entries stop matching everywhere, including phones the organizer can't touch (D21, D28).
+
+**4b. Who creates polls, and how?**
+The organizer, on the dashboard's **Create a poll** form: a question and 2 to 6 answers, validated by `validatePollDraft`. The poll is saved to the shared `polls` table, appears in Poll controls on every organizer screen, and reaches attendees when the organizer shows it and opens voting. Seed polls from `data/polls.json` are still there as defaults (D28).
 
 **5. Why not TypeScript?**
 Less syntax to explain, and faster to build. The real risk is bad data at _runtime_, which TypeScript can't catch; the normalization layer and the `sanitize*` validators do. Types are documented with JSDoc (D3).

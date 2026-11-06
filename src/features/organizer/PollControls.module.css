@@ -57,3 +57,29 @@
   font-size: var(--text-sm);
   color: var(--color-muted);
 }
+
+.optionRow {
+  display: flex;
+  gap: var(--space-2);
+  align-items: stretch;
+}
+
+.optionRow .option {
+  flex: 1;
+}
+
+.deleteButton {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: var(--touch-target);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-card);
+  color: var(--color-muted);
+}
+
+.deleteButton:hover {
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
