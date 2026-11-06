@@ -2,7 +2,7 @@
 import GuestCard from './GuestCard.jsx';
 import styles from './GuestList.module.css';
 
-export default function GuestList({ guests, totalMatches }) {
+export default function GuestList({ guests, totalMatches, onCheckIn, onUndo }) {
   const isTruncated = totalMatches > guests.length;
   return (
     <>
@@ -13,7 +13,7 @@ export default function GuestList({ guests, totalMatches }) {
       <ul className={styles.list}>
         {guests.map((guest) => (
           <li key={guest.id}>
-            <GuestCard guest={guest} />
+            <GuestCard guest={guest} onCheckIn={onCheckIn} onUndo={onUndo} />
           </li>
         ))}
       </ul>

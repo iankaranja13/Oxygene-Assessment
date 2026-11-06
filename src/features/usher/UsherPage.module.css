@@ -19,3 +19,15 @@
   font-weight: var(--weight-semibold);
   color: var(--color-primary);
 }
+
+/* Input, mode switch and feedback stay pinned under the header while results scroll. */
+.controls {
+  position: sticky;
+  top: var(--header-height);
+  z-index: 5;
+  display: grid;
+  gap: var(--space-3);
+  margin: var(--space-2) calc(-1 * var(--space-4)) 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface);
+}

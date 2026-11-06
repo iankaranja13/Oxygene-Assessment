@@ -1,13 +1,3 @@
-/* Sticks under the header so the search box is always within reach while scrolling. */
-.bar {
-  position: sticky;
-  top: var(--header-height);
-  z-index: 5;
-  margin: 0 calc(-1 * var(--space-4));
-  padding: var(--space-3) var(--space-4);
-  background: var(--color-surface);
-}
-
 .field {
   position: relative;
   display: flex;

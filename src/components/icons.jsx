@@ -98,3 +98,22 @@ export function WarningIcon(props) {
     </Icon>
   );
 }
+
+/** A scanner-style frame with bars: used for "enter code" (our QR stand-in). */
+export function CodeIcon(props) {
+  return (
+    <Icon {...props}>
+      <path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2M8 9v6M12 9v6M16 9v6" />
+    </Icon>
+  );
+}
+
+export function UserPlusIcon(props) {
+  return (
+    <Icon {...props}>
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M19 8v6M22 11h-6" />
+    </Icon>
+  );
+}
