@@ -1,0 +1,17 @@
+[
+  {
+    "id": "poll-1",
+    "question": "Which new feature are you most excited to try?",
+    "options": ["Smart scheduling", "Offline mode", "Team dashboards", "Voice commands"]
+  },
+  {
+    "id": "poll-2",
+    "question": "How would you most likely use the product?",
+    "options": ["At work", "At home", "On the move", "All of the above"]
+  },
+  {
+    "id": "poll-3",
+    "question": "How likely are you to recommend us to a colleague?",
+    "options": ["Very likely", "Likely", "Not sure", "Unlikely"]
+  }
+]

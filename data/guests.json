@@ -1,0 +1,1051 @@
+[
+  {
+    "id": "G001",
+    "name": "Fatuma Wambui",
+    "organization": "Google Kenya",
+    "ticketType": "General",
+    "checkInCode": "OXY-1007"
+  },
+  {
+    "id": "G002",
+    "name": "Brian Kariuki",
+    "organization": "Standard Media",
+    "ticketType": "General",
+    "checkInCode": "OXY-1014"
+  },
+  {
+    "id": "G003",
+    "name": "Yuki Langat",
+    "organization": "Jumia",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-1021"
+  },
+  {
+    "id": "G004",
+    "name": "  AISHA CHEN  ",
+    "organization": "Google Kenya",
+    "ticketType": "General",
+    "checkInCode": "OXY-1028"
+  },
+  {
+    "id": "G005",
+    "name": "Kiprop Ndegwa",
+    "organization": "The Standard",
+    "ticketType": "vip",
+    "checkInCode": "OXY-1035"
+  },
+  {
+    "id": "G006",
+    "name": "Renée Kimani",
+    "ticketType": "General",
+    "checkInCode": "OXY-1042"
+  },
+  {
+    "id": "G007",
+    "name": "Joy Patel",
+    "organization": "Nation Media Group",
+    "ticketType": "Speaker",
+    "checkInCode": "oxy-1049"
+  },
+  {
+    "id": "G008",
+    "name": "esther odhiambo",
+    "organization": "Safaricom",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-1056"
+  },
+  {
+    "id": "G009",
+    "name": "Rahul Chen",
+    "organization": "Ministry of ICT",
+    "ticketType": "VIP ",
+    "checkInCode": "OXY-1063"
+  },
+  {
+    "id": "G010",
+    "name": "Chloé Müller",
+    "organization": "",
+    "ticketType": "Press",
+    "checkInCode": "OXY-1070"
+  },
+  {
+    "id": "G011",
+    "name": "Ruth Nyambura",
+    "organization": "Equity Bank",
+    "ticketType": "General",
+    "checkInCode": "OXY1077"
+  },
+  {
+    "id": "G012",
+    "name": "Dennis   Ochieng",
+    "organization": "iHub",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-1084"
+  },
+  {
+    "id": "G013",
+    "name": "Priya Mohamed",
+    "organization": "Twiga Foods",
+    "ticketType": "Vip",
+    "checkInCode": "OXY-1091"
+  },
+  {
+    "id": "G014",
+    "name": "Wanjiku Rotich",
+    "organization": null,
+    "ticketType": "Speaker",
+    "checkInCode": "OXY-1098"
+  },
+  {
+    "id": "G015",
+    "name": "Joy Kimani",
+    "organization": "Jumia",
+    "ticketType": "VIP",
+    "checkInCode": " OXY-1105 "
+  },
+  {
+    "id": "G016",
+    "name": "Daniel Wekesa",
+    "organization": "  KCB Group ",
+    "ticketType": "Sponsor",
+    "checkInCode": "OXY-1112"
+  },
+  {
+    "id": "G017",
+    "name": "Mwangi Haddad",
+    "organization": "Sendy",
+    "ticketType": "GA",
+    "checkInCode": "OXY-1119"
+  },
+  {
+    "id": "G018",
+    "name": "Kwame Wekesa",
+    "organization": "KCB Group",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-1126"
+  },
+  {
+    "id": "G019",
+    "name": "Mwangi Koech",
+    "organization": "Oxygene",
+    "ticketType": "Press",
+    "checkInCode": "OXY 1133"
+  },
+  {
+    "id": "G020",
+    "name": "José Mutiso",
+    "organization": "TWIGA FOODS",
+    "ticketType": "Press",
+    "checkInCode": "OXY-1140"
+  },
+  {
+    "id": "G021",
+    "name": "Omar Patel",
+    "organization": "Ministry of ICT",
+    "ticketType": "general admission",
+    "checkInCode": "OXY-1147"
+  },
+  {
+    "id": "G022",
+    "name": "Kevin Njoroge",
+    "organization": "   ",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-1154"
+  },
+  {
+    "id": "G023",
+    "name": "Aisha Langat",
+    "organization": "Standard Media",
+    "ticketType": "Press",
+    "checkInCode": 1161
+  },
+  {
+    "id": "G024",
+    "name": "Mercy Odhiambo",
+    "organization": "Equity Bank",
+    "ticketType": "Speaker",
+    "checkInCode": "OXY-1168"
+  },
+  {
+    "id": "G025",
+    "name": "Samuel Lefèvre",
+    "organization": "Nation Media Group",
+    "ticketType": "press",
+    "checkInCode": "OXY-1175"
+  },
+  {
+    "id": "G026",
+    "name": "Zawadi Gitau",
+    "organization": "Sendy",
+    "ticketType": "Sponsor",
+    "checkInCode": "OXY-1182"
+  },
+  {
+    "id": "G027",
+    "name": "Mutua Wekesa",
+    "organization": "Microsoft ADC",
+    "ticketType": "General"
+  },
+  {
+    "id": "G028",
+    "name": "Kevin Kariuki",
+    "organization": "N/A",
+    "ticketType": "General",
+    "checkInCode": "OXY-1196"
+  },
+  {
+    "id": "G029",
+    "name": "Esther Koech",
+    "organization": "Google Kenya",
+    "checkInCode": "OXY-1203"
+  },
+  {
+    "id": "G030",
+    "name": "Renée Moyo",
+    "organization": "Twiga Foods",
+    "ticketType": "General",
+    "checkInCode": "OXY-1210"
+  },
+  {
+    "id": "G031",
+    "name": "Kevin Ndegwa",
+    "organization": "Twiga Foods",
+    "ticketType": "Sponsor",
+    "checkInCode": ""
+  },
+  {
+    "id": "G032",
+    "name": "Joy Dlamini",
+    "organization": "The Standard",
+    "ticketType": "General",
+    "checkInCode": "OXY-1224"
+  },
+  {
+    "id": "G033",
+    "name": "Fatuma Okafor",
+    "organization": "Microsoft ADC",
+    "ticketType": "",
+    "checkInCode": "OXY-1231"
+  },
+  {
+    "id": "G034",
+    "name": "Samuel García",
+    "organization": "-",
+    "ticketType": "General",
+    "checkInCode": "OXY-1238"
+  },
+  {
+    "id": "G035",
+    "name": "François Müller",
+    "organization": "Safaricom",
+    "ticketType": "General",
+    "checkInCode": "OXY-1252"
+  },
+  {
+    "id": "G036",
+    "name": "Dennis Núñez",
+    "organization": "Capital FM",
+    "ticketType": "General",
+    "checkInCode": "OXY-1252"
+  },
+  {
+    "id": "G037",
+    "name": "François Wekesa",
+    "organization": "Oxygene",
+    "ticketType": "Platinum",
+    "checkInCode": "OXY-1259"
+  },
+  {
+    "id": "G039",
+    "name": "Ngozi Mensah",
+    "organization": "Safaricom",
+    "ticketType": "Speaker",
+    "checkInCode": "OXY-1273"
+  },
+  {
+    "id": "G040",
+    "name": "Ngozi Haddad",
+    "organization": "Strathmore University",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-1280"
+  },
+  {
+    "id": "G041",
+    "name": "Ruth Langat",
+    "organization": "Oxygene",
+    "ticketType": "Speaker",
+    "checkInCode": "OXY-1287"
+  },
+  {
+    "id": "G042",
+    "name": "",
+    "organization": "Oxygene",
+    "ticketType": "General",
+    "checkInCode": "OXY-1294"
+  },
+  {
+    "id": "G043",
+    "name": "Chidi Kariuki",
+    "organization": "The Standard",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-1301"
+  },
+  {
+    "id": "G044",
+    "name": "Grace Dlamini",
+    "organization": "Google Kenya",
+    "ticketType": "General",
+    "checkInCode": "OXY-1308"
+  },
+  {
+    "id": "G045",
+    "name": "Kevin Dlamini",
+    "organization": "Equity Bank",
+    "ticketType": "General",
+    "checkInCode": "OXY-1315"
+  },
+  {
+    "id": "G047",
+    "organization": "Standard Media",
+    "ticketType": "Sponsor",
+    "checkInCode": "OXY-1329"
+  },
+  {
+    "id": "G048",
+    "name": "Tendai Dlamini",
+    "organization": "Cellulant",
+    "ticketType": "Press",
+    "checkInCode": "OXY-1336"
+  },
+  {
+    "id": "G049",
+    "name": "Baraka Haddad",
+    "organization": "Jumia",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-1343"
+  },
+  {
+    "id": "G050",
+    "name": "Aisha Núñez",
+    "organization": "Google Kenya",
+    "ticketType": "General",
+    "checkInCode": "OXY-1350"
+  },
+  {
+    "id": "G051",
+    "name": "   ",
+    "organization": "KCB Group",
+    "ticketType": "General",
+    "checkInCode": "OXY-1357"
+  },
+  {
+    "id": "G052",
+    "name": "Dennis Lefèvre",
+    "organization": "Oxygene",
+    "ticketType": "Speaker",
+    "checkInCode": "OXY-1364"
+  },
+  {
+    "id": "G053",
+    "name": "Zawadi Müller",
+    "organization": "Standard Media",
+    "ticketType": "General",
+    "checkInCode": "OXY-1371"
+  },
+  {
+    "id": "G055",
+    "name": "Chidi Müller",
+    "organization": "Andela",
+    "ticketType": "Speaker",
+    "checkInCode": "OXY-1385"
+  },
+  {
+    "id": "G057",
+    "full_name": "Omar Njoroge",
+    "org": "Google Kenya",
+    "ticket_type": "VIP",
+    "code": "OXY-1399"
+  },
+  {
+    "id": "G058",
+    "name": "Lindiwe Kariuki",
+    "organization": "Standard Media",
+    "ticketType": "General",
+    "checkInCode": "OXY-1406"
+  },
+  {
+    "id": "G059",
+    "name": "Rahul Mutiso",
+    "organization": "Cellulant",
+    "ticketType": "Sponsor",
+    "checkInCode": "OXY-1413"
+  },
+  {
+    "id": "G060",
+    "name": "Tendai Moyo",
+    "organization": "KCB Group",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-1420"
+  },
+  {
+    "id": "G061",
+    "name": "François Haddad",
+    "organization": "KCB Group",
+    "ticketType": "General",
+    "checkInCode": "OXY-1427"
+  },
+  {
+    "id": "G062",
+    "name": "Priya Langat",
+    "organization": "iHub",
+    "ticketType": "General",
+    "checkInCode": "OXY-1434"
+  },
+  {
+    "id": "G063",
+    "name": "Hassan Lefèvre",
+    "organization": "Jumia",
+    "ticketType": "Speaker",
+    "checkInCode": "OXY-1441"
+  },
+  {
+    "id": "G064",
+    "name": "Wei Wambui",
+    "organization": "Ministry of ICT",
+    "ticketType": "Sponsor",
+    "checkInCode": "OXY-1448"
+  },
+  {
+    "id": "G065",
+    "name": "Björn Dlamini",
+    "organization": "Jumia",
+    "ticketType": "Press",
+    "checkInCode": "OXY-1455",
+    "checkedIn": true,
+    "checkedInAt": "2026-11-20T17:45:00+03:00"
+  },
+  {
+    "id": "G066",
+    "name": "Chidi Nyambura",
+    "organization": "iHub",
+    "ticketType": "General",
+    "checkInCode": "OXY-1462",
+    "checkedIn": "yes"
+  },
+  {
+    "id": "G067",
+    "name": "José Dlamini",
+    "organization": "Twiga Foods",
+    "ticketType": "General",
+    "checkInCode": "OXY-1469",
+    "checkedIn": true,
+    "checkedInAt": "not a date"
+  },
+  {
+    "id": "G068",
+    "name": "Mercy Njoroge",
+    "organization": "iHub",
+    "ticketType": "Press",
+    "checkInCode": "OXY-1476"
+  },
+  {
+    "id": "G069",
+    "name": "Hassan Mutiso",
+    "organization": "Equity Bank",
+    "ticketType": "Speaker",
+    "checkInCode": "OXY-1483"
+  },
+  {
+    "id": "G070",
+    "name": "Ruth Mohamed",
+    "organization": "Standard Media",
+    "ticketType": "General",
+    "checkInCode": "OXY-1490"
+  },
+  {
+    "id": "G071",
+    "name": "Mwangi Chen",
+    "organization": "Andela",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-1497"
+  },
+  {
+    "id": "G072",
+    "name": "Chloé Ali",
+    "organization": "Strathmore University",
+    "ticketType": "General",
+    "checkInCode": "OXY-1504"
+  },
+  {
+    "id": "G073",
+    "name": "Hassan Ndegwa",
+    "organization": "iHub",
+    "ticketType": "General",
+    "checkInCode": "OXY-1511"
+  },
+  {
+    "id": "G074",
+    "name": "Yuki Kimani",
+    "organization": "M-KOPA",
+    "ticketType": "General",
+    "checkInCode": "OXY-1518"
+  },
+  {
+    "id": "G075",
+    "name": "Peter Patel",
+    "organization": "Kenya Airways",
+    "ticketType": "General",
+    "checkInCode": "OXY-1525",
+    "dietary": "Vegetarian"
+  },
+  {
+    "id": "G076",
+    "name": "Michael Nyambura",
+    "organization": "Jumia",
+    "ticketType": "General",
+    "checkInCode": "OXY-1532",
+    "notes": "Plus one approved"
+  },
+  {
+    "id": "G077",
+    "name": "Lindiwe Wambui",
+    "organization": "Strathmore University",
+    "ticketType": "General",
+    "checkInCode": "OXY-1539"
+  },
+  {
+    "id": "G078",
+    "name": "Fatuma Chen",
+    "organization": "Ministry of ICT",
+    "ticketType": "General",
+    "checkInCode": "OXY-1546"
+  },
+  {
+    "id": "G079",
+    "name": "Rahul Kimani",
+    "organization": "Twiga Foods",
+    "ticketType": "Press",
+    "checkInCode": "OXY-1553"
+  },
+  {
+    "id": "G080",
+    "name": "Chebet Mohamed",
+    "organization": "Capital FM",
+    "ticketType": "Press",
+    "checkInCode": "OXY-1560"
+  },
+  {
+    "id": "G081",
+    "name": "Dennis Mensah",
+    "organization": "Strathmore University",
+    "ticketType": "General",
+    "checkInCode": "OXY-1567"
+  },
+  {
+    "id": "G082",
+    "name": "Otieno Mensah",
+    "organization": "Ministry of ICT",
+    "ticketType": "Sponsor",
+    "checkInCode": "OXY-1574"
+  },
+  {
+    "id": "G083",
+    "name": "Hassan Mohamed",
+    "organization": "Jumia",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-1581"
+  },
+  {
+    "id": "G085",
+    "name": "Joy Smith",
+    "organization": "Oxygene",
+    "ticketType": "Sponsor",
+    "checkInCode": "OXY-1595"
+  },
+  {
+    "id": "G086",
+    "name": "Grace Mutiso",
+    "organization": "iHub",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-1602"
+  },
+  {
+    "id": "G087",
+    "name": "Njeri Wambui",
+    "organization": "Strathmore University",
+    "ticketType": "Speaker",
+    "checkInCode": "OXY-1609"
+  },
+  {
+    "id": "G088",
+    "name": "Aisha Lefèvre",
+    "organization": "Kenya Airways",
+    "ticketType": "Press",
+    "checkInCode": "OXY-1616"
+  },
+  {
+    "id": "G089",
+    "name": "Akinyi Njoroge",
+    "organization": "Cellulant",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-1623"
+  },
+  {
+    "id": "G090",
+    "name": "Baraka Mutiso",
+    "organization": "Safaricom",
+    "ticketType": "General",
+    "checkInCode": "OXY-1630"
+  },
+  {
+    "id": "G091",
+    "name": "Sarah Ali",
+    "organization": "Kenya Airways",
+    "ticketType": "General",
+    "checkInCode": "OXY-1637"
+  },
+  {
+    "id": "G092",
+    "name": "Rahul Mohamed",
+    "organization": "Microsoft ADC",
+    "ticketType": "Speaker",
+    "checkInCode": "OXY-1644"
+  },
+  {
+    "id": "G093",
+    "name": "Baraka Dlamini",
+    "organization": "Nation Media Group",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-1651"
+  },
+  {
+    "id": "G094",
+    "name": "Amina Gitau",
+    "organization": "Andela",
+    "ticketType": "Sponsor",
+    "checkInCode": "OXY-1658"
+  },
+  {
+    "id": "G095",
+    "name": "Kevin Lefèvre",
+    "organization": "Capital FM",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-1665"
+  },
+  {
+    "name": "Rahul Rotich",
+    "organization": "Cellulant",
+    "ticketType": "Sponsor",
+    "checkInCode": "OXY-1672"
+  },
+  {
+    "name": "Chloé Mutiso",
+    "organization": "Microsoft ADC",
+    "ticketType": "General",
+    "checkInCode": "OXY-1679"
+  },
+  {
+    "id": "G098",
+    "name": "Samuel Ali",
+    "organization": "KCB Group",
+    "ticketType": "Press",
+    "checkInCode": "OXY-1686"
+  },
+  {
+    "id": "G099",
+    "name": "Michael Langat",
+    "organization": "Google Kenya",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-1693"
+  },
+  {
+    "id": "G100",
+    "name": "Chebet Patel",
+    "organization": "Standard Media",
+    "ticketType": "General",
+    "checkInCode": "OXY-1700"
+  },
+  {
+    "id": "G101",
+    "name": "Omar Chen",
+    "organization": "Ministry of ICT",
+    "ticketType": "General",
+    "checkInCode": "OXY-1707"
+  },
+  {
+    "id": "G102",
+    "name": "Søren Njoroge",
+    "organization": "KCB Group",
+    "ticketType": "General",
+    "checkInCode": "OXY-1714"
+  },
+  {
+    "id": "G103",
+    "name": "Ngozi Kimani",
+    "organization": "iHub",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-1721"
+  },
+  {
+    "id": "G104",
+    "name": "Aisha García",
+    "organization": "KCB Group",
+    "ticketType": "General",
+    "checkInCode": "OXY-1728"
+  },
+  {
+    "id": "G105",
+    "name": "Renée García",
+    "organization": "Jumia",
+    "ticketType": "General",
+    "checkInCode": "OXY-1735"
+  },
+  {
+    "id": "G106",
+    "name": "Faith Langat",
+    "organization": "Andela",
+    "ticketType": "Speaker",
+    "checkInCode": "OXY-1742"
+  },
+  {
+    "id": "G107",
+    "name": "Amina Haddad",
+    "organization": "M-KOPA",
+    "ticketType": "General",
+    "checkInCode": "OXY-1749"
+  },
+  {
+    "id": "G108",
+    "name": "Zawadi Tanaka",
+    "organization": "iHub",
+    "ticketType": "General",
+    "checkInCode": "OXY-1756"
+  },
+  {
+    "id": "G109",
+    "name": "Aisha Mohamed",
+    "organization": "Equity Bank",
+    "ticketType": "General",
+    "checkInCode": "OXY-1763"
+  },
+  {
+    "id": "G110",
+    "name": "Omar Mensah",
+    "organization": "Kenya Airways",
+    "ticketType": "Sponsor",
+    "checkInCode": "OXY-1770"
+  },
+  {
+    "id": "G111",
+    "name": "Faith Chen",
+    "organization": "KCB Group",
+    "ticketType": "General",
+    "checkInCode": "OXY-1777"
+  },
+  {
+    "id": "G112",
+    "name": "José Kimani",
+    "organization": "Jumia",
+    "ticketType": "General",
+    "checkInCode": "OXY-1784"
+  },
+  {
+    "id": "G113",
+    "name": "Ruth Ali",
+    "organization": "Google Kenya",
+    "ticketType": "General",
+    "checkInCode": "OXY-1791"
+  },
+  {
+    "id": "G114",
+    "name": "Otieno Lefèvre",
+    "organization": "KCB Group",
+    "ticketType": "Speaker",
+    "checkInCode": "OXY-1798"
+  },
+  {
+    "id": "G115",
+    "name": "Ngozi Smith",
+    "organization": "Standard Media",
+    "ticketType": "General",
+    "checkInCode": "OXY-1805"
+  },
+  {
+    "id": "G116",
+    "name": "Achieng Wekesa",
+    "organization": "iHub",
+    "ticketType": "General",
+    "checkInCode": "OXY-1812"
+  },
+  {
+    "id": "G117",
+    "name": "Chebet Wambui",
+    "organization": "Google Kenya",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-1819"
+  },
+  {
+    "id": "G118",
+    "name": "Grace Odhiambo",
+    "organization": "Jumia",
+    "ticketType": "General",
+    "checkInCode": "OXY-1826"
+  },
+  {
+    "id": "G120",
+    "name": "Omar Lefèvre",
+    "organization": "Andela",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-1840"
+  },
+  {
+    "id": "G121",
+    "name": "Akinyi Okafor",
+    "organization": "Oxygene",
+    "ticketType": "Press",
+    "checkInCode": "OXY-1847"
+  },
+  {
+    "id": "G122",
+    "name": "Dennis Mutiso",
+    "organization": "Oxygene",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-1854"
+  },
+  {
+    "id": "G123",
+    "name": "Leila Haddad",
+    "organization": "M-KOPA",
+    "ticketType": "General",
+    "checkInCode": "OXY-1861"
+  },
+  {
+    "id": "G124",
+    "name": "José Chen",
+    "organization": "Jumia",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-1868"
+  },
+  {
+    "id": "G126",
+    "name": "Sarah Patel",
+    "organization": "iHub",
+    "ticketType": "Press",
+    "checkInCode": "OXY-1882"
+  },
+  {
+    "id": "G127",
+    "name": "Grace Nyambura",
+    "organization": "Ministry of ICT",
+    "ticketType": "General",
+    "checkInCode": "OXY-1889"
+  },
+  {
+    "id": "G128",
+    "name": "Grace Kimani",
+    "organization": "Jumia",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-1896"
+  },
+  {
+    "id": "G129",
+    "name": "Grace Mohamed",
+    "organization": "M-KOPA",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-1903"
+  },
+  {
+    "id": "G131",
+    "name": "Zoë Rotich",
+    "organization": "Oxygene",
+    "ticketType": "General",
+    "checkInCode": "OXY-1917"
+  },
+  {
+    "id": "G132",
+    "name": "Zoë Njoroge",
+    "organization": "Twiga Foods",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-1924"
+  },
+  {
+    "id": "G133",
+    "name": "Ruth Njoroge",
+    "organization": "Ministry of ICT",
+    "ticketType": "Sponsor",
+    "checkInCode": "OXY-1931"
+  },
+  {
+    "id": "G134",
+    "name": "Søren Omondi",
+    "organization": "Oxygene",
+    "ticketType": "General",
+    "checkInCode": "OXY-1938"
+  },
+  {
+    "id": "G135",
+    "name": "Chidi Okafor",
+    "organization": "Twiga Foods",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-1945"
+  },
+  {
+    "id": "G136",
+    "name": "Leila Kariuki",
+    "organization": "Oxygene",
+    "ticketType": "General",
+    "checkInCode": "OXY-1952"
+  },
+  {
+    "id": "G137",
+    "name": "Ngozi Ochieng",
+    "organization": "Ministry of ICT",
+    "ticketType": "Sponsor",
+    "checkInCode": "OXY-1959"
+  },
+  {
+    "id": "G139",
+    "name": "Hassan Haddad",
+    "organization": "Twiga Foods",
+    "ticketType": "General",
+    "checkInCode": "OXY-1973"
+  },
+  {
+    "id": "G140",
+    "name": "Ngozi Nyambura",
+    "organization": "Kenya Airways",
+    "ticketType": "General",
+    "checkInCode": "OXY-1980"
+  },
+  {
+    "id": "G141",
+    "name": "Samuel Ochieng",
+    "organization": "M-KOPA",
+    "ticketType": "Press",
+    "checkInCode": "OXY-1987"
+  },
+  {
+    "id": "G142",
+    "name": "Leila Langat",
+    "organization": "M-KOPA",
+    "ticketType": "Speaker",
+    "checkInCode": "OXY-1994"
+  },
+  {
+    "id": "G144",
+    "name": "Omar Langat",
+    "organization": "Standard Media",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-2008"
+  },
+  {
+    "id": "G145",
+    "name": "Mwangi Nyambura",
+    "organization": "Andela",
+    "ticketType": "Speaker",
+    "checkInCode": "OXY-2015"
+  },
+  {
+    "id": "G147",
+    "name": "Chidi Wambui",
+    "organization": "Oxygene",
+    "ticketType": "Speaker",
+    "checkInCode": "OXY-2029"
+  },
+  {
+    "id": "G148",
+    "name": "José Patel",
+    "organization": "Kenya Airways",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-2036"
+  },
+  {
+    "id": "G149",
+    "name": "Renée Mutiso",
+    "organization": "The Standard",
+    "ticketType": "Speaker",
+    "checkInCode": "OXY-2043"
+  },
+  {
+    "id": "G150",
+    "name": "Daniel Chen",
+    "organization": "iHub",
+    "ticketType": "Press",
+    "checkInCode": "OXY-2050"
+  },
+  {
+    "id": "G151",
+    "name": "Zoë Gitau",
+    "organization": "Cellulant",
+    "ticketType": "Speaker",
+    "checkInCode": "OXY-2057"
+  },
+  {
+    "id": "G086",
+    "name": "Grace Mutiso",
+    "organization": "iHub",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-1602"
+  },
+  {
+    "id": "G900",
+    "name": "Njeri Wambui",
+    "organization": "Strathmore University",
+    "ticketType": "Speaker",
+    "checkInCode": "OXY-9001"
+  },
+  {
+    "id": "G901",
+    "name": "AISHA LEFÈVRE ",
+    "organization": "Kenya Airways",
+    "ticketType": "Press",
+    "checkInCode": "OXY-1616"
+  },
+  {
+    "id": "G902",
+    "name": "Akinyi Njoroge",
+    "organization": "Cellulant",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-1623"
+  },
+  {
+    "id": "G903",
+    "name": "Grace Wambui",
+    "organization": "Safaricom",
+    "ticketType": "General",
+    "checkInCode": "OXY-7701"
+  },
+  {
+    "id": "G904",
+    "name": "Grace Wambui",
+    "organization": "Equity Bank",
+    "ticketType": "VIP",
+    "checkInCode": "OXY-7702"
+  },
+  {
+    "id": "G905",
+    "name": "José Núñez",
+    "organization": "Andela",
+    "ticketType": "Speaker",
+    "checkInCode": "OXY-7703"
+  },
+  null,
+  "Kamau Kariuki, Safaricom, VIP",
+  {},
+  {
+    "id": "G906",
+    "name": 12345,
+    "organization": [
+      "iHub"
+    ],
+    "ticketType": "General",
+    "checkInCode": "OXY-7704"
+  },
+  {
+    "id": "G950",
+    "name": "Baraka Kimani",
+    "organization": "Capital FM",
+    "ticketType": "General",
+    "checkInCode": "OXY-8000"
+  }
+]
