@@ -4,13 +4,15 @@
 //
 // Store interface:
 //   getState()            -> SharedState (same object until something changes, for React)
-//   subscribe(listener)   -> unsubscribe function; listener runs after every change
+//   subscribe(listener)   -> unsubscribe function; listener runs after every change,
+//                            including changes made in other tabs of this browser
+//   getConnectionStatus() -> one of CONNECTION_STATUS (see below)
 //   setCheckIn(guestId, record), addWalkIn(walkIn), castVote(pollId, optionIndex),
 //   setPollState(changes) (merged into the current poll state), resetAll()
 //                         -> Promise<{ ok: true } | { ok: false, error: string }>
 // Actions are async because a network-backed store has to be.
 
-import { browserLocalStorage } from './safeStorage.js';
+import { STORAGE_PREFIX, browserLocalStorage } from './safeStorage.js';
 import {
   EMPTY_SHARED_STATE,
   addVote,
@@ -38,11 +40,27 @@ export const STORE_ERRORS = Object.freeze({
 
 const OK = Object.freeze({ ok: true });
 
+/** Where shared data currently lives / whether it's syncing. Shown to staff in the UI. */
+export const CONNECTION_STATUS = Object.freeze({
+  LOCAL: 'local', // localStorage: syncs between tabs of this browser only
+  CONNECTING: 'connecting', // network store: loading the first snapshot
+  LIVE: 'live', // network store: connected and receiving updates
+  OFFLINE: 'offline', // network store: lost connection; showing the last known data
+});
+
+const STORAGE_EVENT = 'storage';
+
 /**
- * @param {{ storage?: ReturnType<import('./safeStorage.js').createSafeStorage> }} [options]
+ * @param {object} [options]
+ * @param {ReturnType<import('./safeStorage.js').createSafeStorage>} [options.storage]
  *   Injectable so tests can use an in-memory or deliberately broken storage.
+ * @param {EventTarget | null} [options.eventTarget] where "storage" events arrive
+ *   (window in the browser; a fake in tests; null to disable cross-tab sync).
  */
-export function createLocalStore({ storage = browserLocalStorage } = {}) {
+export function createLocalStore({
+  storage = browserLocalStorage,
+  eventTarget = typeof window === 'undefined' ? null : window,
+} = {}) {
   const listeners = new Set();
   let state = readAllSlices(EMPTY_SHARED_STATE);
 
@@ -57,6 +75,17 @@ export function createLocalStore({ storage = browserLocalStorage } = {}) {
 
   function notify() {
     listeners.forEach((listener) => listener());
+  }
+
+  // Cross-tab sync: the browser fires a "storage" event in every OTHER tab of this
+  // browser when localStorage changes. We reload our copy and re-render.
+  // (key === null means another tab cleared all storage.)
+  const sliceKeys = Object.values(SLICES).map(({ key }) => `${STORAGE_PREFIX}${key}`);
+  function handleStorageEvent(event) {
+    if (event.key === null || sliceKeys.includes(event.key)) {
+      state = readAllSlices(state);
+      notify();
+    }
   }
 
   /**
@@ -80,8 +109,19 @@ export function createLocalStore({ storage = browserLocalStorage } = {}) {
     },
 
     subscribe(listener) {
+      // Only listen for other tabs while something on screen cares.
+      if (listeners.size === 0) eventTarget?.addEventListener(STORAGE_EVENT, handleStorageEvent);
       listeners.add(listener);
-      return () => listeners.delete(listener);
+      return () => {
+        listeners.delete(listener);
+        if (listeners.size === 0) {
+          eventTarget?.removeEventListener(STORAGE_EVENT, handleStorageEvent);
+        }
+      };
+    },
+
+    getConnectionStatus() {
+      return CONNECTION_STATUS.LOCAL;
     },
 
     async setCheckIn(guestId, record) {
