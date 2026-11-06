@@ -53,7 +53,7 @@ Newest entries at the bottom.
 
 ## D8. Lightweight staff PIN, not authentication
 
-- **Decision:** `/usher` and `/organizer` are wrapped in a `PinGate`. The PIN comes from `VITE_STAFF_PIN` (default `2026`) and unlocking is remembered in `sessionStorage` until the tab closes or staff tap "Lock".
+- **Decision:** `/usher` and `/organizer` are wrapped in a `PinGate`. _(Superseded in part by D27: there are now separate usher and organizer PINs.)_ The PIN came from `VITE_STAFF_PIN` (default `2026`) and unlocking is remembered in `sessionStorage` until the tab closes or staff tap "Lock".
 - **Why:** Stops curious attendees wandering into check-in or the poll controls, with no login friction for ushers at a busy door.
 - **Trade-off (stated honestly):** The PIN is compiled into the JavaScript bundle, so a determined person can find it. This is a deterrent, not security. Real protection would need server-side auth (e.g. Supabase Auth with staff accounts), which is out of scope.
 - **Rejected:** No gate at all (attendees could close polls); full login (slow at the door, needs accounts).
@@ -72,7 +72,7 @@ Newest entries at the bottom.
 
 ## D11. Guest list bundled at build time, not fetched at runtime
 
-- **Decision:** `src/data/seed.js` imports `data/guests.json` and `data/polls.json` directly, and normalizes them once when the app starts.
+- **Decision:** _(Split in D27 into `seedGuests.js` and `seedPolls.js`.)_ `src/data/seed.js` imports `data/guests.json` and `data/polls.json` directly, and normalizes them once when the app starts.
 - **Why:** The list is available instantly (no loading spinner at the door), and keeps working if venue Wi-Fi drops after the page has loaded. About 150 records is roughly 25 KB, which is trivial.
 - **Trade-off:** Updating the guest list needs a redeploy (about a minute on Vercel). A malformed JSON file fails the _build_, never the live app.
 - **Rejected:** Fetching `/guests.json` at runtime (adds loading and error states for no real benefit at this size); storing the list in Supabase (needs an import step and admin UI, which is out of scope).
@@ -200,3 +200,23 @@ Newest entries at the bottom.
   - On the live site, with two separate browser profiles standing in for two devices: opening a poll reached the "phone" in about 1.7s, a vote reached the "laptop" in about 1.3s, and check-ins, closing voting and reset all synced.
 - **Bug found and fixed while verifying:** the staff badge briefly showed "Offline" while the realtime channel was still joining. Only a real failure now shows Offline; otherwise it says "Connecting" until live.
 - **Next step noted:** The Supabase client adds most of the 157 kB (gzipped) bundle. Loading it with a dynamic `import()` would speed up first load on slow networks.
+
+## D27. Separate usher and organizer PINs; guest data only downloads for staff
+
+- **Problem found:** One PIN unlocked everything, so an usher could open the dashboard and reset all data. And the guest list was bundled into the single app file, so every attendee who opened `/poll` downloaded every guest's name, organization and check-in code.
+- **Decision 1 (roles):**
+  - Two PINs: usher (`VITE_USHER_PIN`, default `2026`) and organizer (`VITE_ORGANIZER_PIN`, default `4826`).
+  - `ROUTE_ROLES` maps each staff route to the role it needs; `canAccess` ranks organizer above usher.
+  - `PinGate` tells an usher who opens the dashboard that it needs the organizer PIN.
+  - The bottom nav only shows each role's screens, and the header shows the current role.
+- **Decision 2 (data exposure):**
+  - `UsherPage` and `OrganizerPage` are lazy-loaded (`React.lazy` + `Suspense`), and the seed data was split into `seedPolls.js` (public) and `seedGuests.js` (only imported by staff screens).
+  - The guest list now builds into its own file that downloads only after a staff screen is unlocked.
+  - A `ScreenErrorBoundary` shows "This screen couldn't load. Reload" if that download fails.
+- **Verified:**
+  - Searching the build: the main file has 0 guest names and 0 codes; the guest file has all 143 codes.
+  - In a browser: an attendee on `/poll` (or at the PIN screen) downloads only the main file; an usher gets the check-in files but never the dashboard file; usher PIN on `/organizer` is refused with a clear message; the organizer gets all three nav items.
+  - Axe audit: 14 screens and states, 0 violations.
+- **Still not security (honest):** both PINs are in the main JavaScript file, the staff files are publicly reachable by URL, and the database trusts anyone with the public key. This stops casual misuse, not a determined person.
+- **Real fix (next step):** Supabase Auth with usher/organizer accounts, the guest list stored in the database, and Row Level Security per role (ushers write check-ins; only organizers change polls or reset; attendees can only read the active question and call `cast_vote`).
+- **Rejected:** Hiding the dashboard link only (an usher could still type the URL); fetching the guest list from `/public` after the PIN (the file would sit at a public URL with no benefit over a lazy chunk).

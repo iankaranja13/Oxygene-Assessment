@@ -17,7 +17,7 @@ Flows, screen states, and the design decisions behind them. Brand values come fr
 ```mermaid
 flowchart TD
     A([Open /usher]) --> B{Unlocked on this device?}
-    B -- No --> C[Enter staff PIN] --> D
+    B -- No --> C[Enter usher or organizer PIN] --> D
     B -- Yes --> D[Check-in screen<br/>search box focused]
     D --> E{Find guest or Enter code?}
 
@@ -73,7 +73,7 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    A([Open /organizer + PIN]) --> B[Dashboard]
+    A([Open /organizer + organizer PIN]) --> B[Dashboard]
     B --> C[Check-ins: X of Y, %, bar]
     B --> D[Poll controls]
     D --> E[Choose poll → phones show it, voting closed]
