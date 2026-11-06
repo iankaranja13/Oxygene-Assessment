@@ -69,3 +69,40 @@ Newest entries at the bottom.
 - **Decision:** Inter and Poppins load from Google Fonts; system fonts are the fallback.
 - **Why:** No extra npm dependency. With `display=swap`, text appears immediately in a system font and the app still works if the fonts fail to load (poor venue Wi-Fi).
 - **Rejected:** Self-hosting via `@fontsource` (two more dependencies for a small gain).
+
+## D11. Guest list bundled at build time, not fetched at runtime
+
+- **Decision:** `src/data/seed.js` imports `data/guests.json` and `data/polls.json` directly, and normalizes them once when the app starts.
+- **Why:** The list is available instantly (no loading spinner at the door), and keeps working if venue Wi-Fi drops after the page has loaded. About 150 records is roughly 25 KB, which is trivial.
+- **Trade-off:** Updating the guest list needs a redeploy (about a minute on Vercel). A malformed JSON file fails the _build_, never the live app.
+- **Rejected:** Fetching `/guests.json` at runtime (adds loading and error states for no real benefit at this size); storing the list in Supabase (needs an import step and admin UI, which is out of scope).
+
+## D12. Normalization rules: fix what's certain, flag what isn't
+
+- **Decision:**
+  - _Fixed automatically:_ whitespace, ALL-CAPS or all-lower-case names, code formats (always `OXY-1234`), ticket-type spellings, alternative field names, "N/A"-style organizations.
+  - _Safe defaults:_ "Unnamed guest", "No organization", and "Unspecified" ticket type (never assume General, so we never guess someone's entitlements).
+  - _Merged:_ only records that are identical once cleaned.
+  - _Kept but flagged:_ guests sharing a code, or sharing a name. The usher decides, with the organization and ticket type shown to tell them apart.
+  - _Skipped and reported:_ rows that aren't objects, or have neither a name nor a code (nobody could ever find them).
+- **Why:** Silently "fixing" an ambiguous record could check in the wrong person. Flagging keeps the human in control.
+- **IDs:** Generated from the data (code, or name), never randomly, so the same guest has the same id on every phone. That matters because check-ins are stored by guest id.
+- **Rejected:** Fuzzy auto-merging of similar names (risky: the two Grace Wambuis are different people at different companies).
+
+## D13. Check-ins stored as overrides, the guest list is never modified
+
+- **Decision:** Shared state stores `checkIns[guestId] = { checkedIn, at }`. A guest's status is the override if present, otherwise the status from the original list.
+- **Why:** Undo is just writing `checkedIn: false`. "Reset demo data" clears overrides and the list returns to exactly what was supplied, including people marked as checked in in the export. It also maps cleanly to one database row per check-in in Supabase.
+- **Rejected:** Copying the whole guest list into storage and editing it (larger writes, harder reset, and the list and storage could drift apart).
+
+## D14. Store interface with domain actions; `useSharedState` instead of `useLocalStorage`
+
+- **Decision:** Screens call `appStore.setCheckIn`, `addWalkIn`, `castVote`, `setPollState` and `resetAll`, and read state with the `useSharedState()` hook (React's `useSyncExternalStore`). The brief's suggested `useLocalStorage` hook became `useSharedState` because screens shouldn't know storage is local.
+- **Why:**
+  - Swapping to Supabase changes one file (`appStore.js`).
+  - Vote counting can be atomic on the server, which a plain get/set can't do.
+  - The store re-reads storage before each write, so two tabs don't overwrite each other.
+  - Every value read back from storage is validated (`sharedState.js`).
+  - If the browser refuses to save, the change still shows on screen and the action returns an error message for the UI to show, so nothing fails silently.
+- **Device flags stay local:** "This phone already voted" is about the device, not the event, so it always lives in localStorage even with Supabase.
+- **Rejected:** A generic key/value `useLocalStorage` hook used directly by components (couples every screen to localStorage); a state library like Redux or Zustand (unnecessary for this size of app).

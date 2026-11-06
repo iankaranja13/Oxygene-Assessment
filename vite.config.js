@@ -8,7 +8,5 @@ export default defineConfig({
     // Tests target the pure functions in src/lib, so plain Node is enough (no browser DOM needed).
     environment: 'node',
     include: ['src/**/*.test.js'],
-    // Lets CI pass before the first test file exists; removed once real tests land.
-    passWithNoTests: true,
   },
 });
