@@ -1,0 +1,12 @@
+.header {
+  margin-bottom: var(--space-6);
+}
+
+.title {
+  font-size: var(--text-2xl);
+}
+
+.description {
+  margin-top: var(--space-1);
+  color: var(--color-muted);
+}

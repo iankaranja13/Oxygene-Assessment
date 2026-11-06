@@ -1,0 +1,64 @@
+/* Page frame: sticky header, centred content column, room for the bottom nav. */
+.skipLink {
+  position: absolute;
+  left: var(--space-4);
+  top: -100px;
+  z-index: 20;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-ink);
+  color: #fff;
+  border-radius: var(--radius-card);
+}
+
+.skipLink:focus {
+  top: var(--space-2);
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--color-card);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.headerInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  max-width: var(--content-wide-max-width);
+  min-height: 56px;
+  margin: 0 auto;
+  padding: var(--space-2) var(--space-4);
+}
+
+.lockButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--touch-target);
+  padding: 0 var(--space-3);
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.lockButton:hover {
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+
+.main {
+  max-width: var(--content-wide-max-width);
+  margin: 0 auto;
+  padding: var(--space-4);
+}
+
+/* Reserve space so the fixed nav never covers the last item on the page. */
+.withNav {
+  padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom) + var(--space-6));
+}

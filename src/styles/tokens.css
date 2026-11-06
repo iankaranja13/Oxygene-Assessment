@@ -1,0 +1,64 @@
+/*
+ * Design tokens: the single source of truth for brand colours, type, spacing and shape.
+ * Values come from docs/brand-guide.md. Every text/background pairing used in the app
+ * has been checked against WCAG AA (4.5:1 for normal text); ratios noted where tight.
+ */
+:root {
+  /* Brand colours */
+  --color-primary: #0b7a75; /* white text on this: 5.18:1 */
+  --color-primary-dark: #075652;
+  --color-primary-bg: #e6f3f2; /* primary text on this: 4.55:1 */
+  --color-accent: #ff6b4a; /* use ink text on this, never white */
+  --color-ink: #14213d;
+  --color-surface: #f5f7fa;
+  --color-card: #ffffff;
+  --color-muted: #5b6475;
+  --color-border: #d5dae3;
+
+  /* Status colours: always paired with an icon and text, never colour alone */
+  --color-success: #1e7b34;
+  --color-success-bg: #e9f5ec;
+  --color-warning: #8a5a00;
+  --color-warning-bg: #fff6e0;
+  --color-error: #b42318;
+  --color-error-bg: #fdecea;
+
+  /* Focus ring: high-contrast outline, visible on every background we use */
+  --focus-ring: 3px solid var(--color-ink);
+  --focus-ring-offset: 2px;
+
+  /* Typography */
+  --font-heading: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --text-sm: 0.875rem; /* 14px */
+  --text-base: 1rem; /* 16px: minimum for inputs, stops iOS zooming on focus */
+  --text-lg: 1.125rem; /* 18px */
+  --text-xl: 1.375rem; /* 22px */
+  --text-2xl: 1.75rem; /* 28px */
+  --text-3xl: 2.25rem; /* 36px */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --line-height: 1.5;
+
+  /* Spacing (4px grid) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+
+  /* Shape */
+  --radius-card: 12px;
+  --radius-pill: 999px;
+  --shadow-card: 0 1px 3px rgba(20, 33, 61, 0.12);
+
+  /* Touch and layout */
+  --touch-target: 48px; /* above the 44px minimum, easier one-handed */
+  --nav-height: 64px;
+  --content-max-width: 40rem; /* comfortable reading width on tablet/desktop */
+  --content-wide-max-width: 72rem; /* organizer dashboard on big screens */
+}

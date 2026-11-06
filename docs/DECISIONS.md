@@ -43,3 +43,29 @@ Newest entries at the bottom.
 - **Decision:** One button, behind a confirmation, clears check-ins, walk-ins, votes, poll state and this device's "already voted" flags.
 - **Why:** The double-vote guard is per device, so a demo on a single browser could otherwise only vote once per poll. It also gives a clean slate before the real event.
 - **Rejected:** A hidden "vote again" link on the poll screen (would let attendees bypass the guard).
+
+## D7. Design tokens in CSS variables, component styles in CSS Modules
+
+- **Decision:** All brand values (colours, fonts, spacing, radius, touch-target size) live in `src/styles/tokens.css` as CSS custom properties. Each component has its own `*.module.css` that only references tokens.
+- **Why:** One place to swap in the real brand guide. CSS Modules scope class names to the component, so styles can't leak between screens, with zero extra dependencies (Vite supports them natively).
+- **Accessibility:** Every text/background pair was checked against WCAG AA (lowest is 4.55:1, primary text on the light teal background). Touch targets are 48px, above the 44px minimum.
+- **Rejected:** Tailwind (another tool and vocabulary to explain); a UI library (heavy, harder to match the brand); one global stylesheet (class-name collisions as the app grows).
+
+## D8. Lightweight staff PIN, not authentication
+
+- **Decision:** `/usher` and `/organizer` are wrapped in a `PinGate`. The PIN comes from `VITE_STAFF_PIN` (default `2026`) and unlocking is remembered in `sessionStorage` until the tab closes or staff tap "Lock".
+- **Why:** Stops curious attendees wandering into check-in or the poll controls, with no login friction for ushers at a busy door.
+- **Trade-off (stated honestly):** The PIN is compiled into the JavaScript bundle, so a determined person can find it. This is a deterrent, not security. Real protection would need server-side auth (e.g. Supabase Auth with staff accounts), which is out of scope.
+- **Rejected:** No gate at all (attendees could close polls); full login (slow at the door, needs accounts).
+
+## D9. Navigation only for staff; a simple home screen at `/`
+
+- **Decision:** The bottom nav (Check-in, Poll, Dashboard) appears only once the device is unlocked. Attendees, who arrive at `/poll` by QR code, see no nav. `/` is a small landing screen sending guests to the poll and staff to their screens.
+- **Why:** Attendees should see one thing: the poll. Staff need to hop between all three views, including previewing the poll.
+- **Rejected:** Always-visible nav (invites attendees into staff screens); redirecting `/` to `/poll` (a judge opening the bare URL would have no way to find the staff views).
+
+## D10. Brand fonts from Google Fonts with `display=swap`
+
+- **Decision:** Inter and Poppins load from Google Fonts; system fonts are the fallback.
+- **Why:** No extra npm dependency. With `display=swap`, text appears immediately in a system font and the app still works if the fonts fail to load (poor venue Wi-Fi).
+- **Rejected:** Self-hosting via `@fontsource` (two more dependencies for a small gain).
