@@ -12,7 +12,7 @@ export default function SearchBox({ value, onChange, inputRef }) {
   }
 
   return (
-    <div className={styles.bar} role="search">
+    <div role="search">
       <label htmlFor={SEARCH_INPUT_ID} className="visually-hidden">
         Search guests by name, organization or code
       </label>
