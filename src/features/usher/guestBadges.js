@@ -8,6 +8,7 @@ const FLAG_BADGES = {
   [GUEST_FLAGS.SAME_NAME]: { label: 'Same name as another guest', tone: 'warning' },
   [GUEST_FLAGS.MISSING_CODE]: { label: 'No code on list', tone: 'neutral' },
   [GUEST_FLAGS.UNKNOWN_TICKET_TYPE]: { label: 'Unusual ticket type', tone: 'neutral' },
+  [GUEST_FLAGS.WALK_IN]: { label: 'Walk-in', tone: 'primary' },
 };
 
 const TICKET_TONES = {
