@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   EMPTY_SHARED_STATE,
+  INITIAL_VOTING_ROUND,
   addVote,
   sanitizeCheckIns,
   sanitizePollState,
@@ -34,8 +35,14 @@ describe('sanitizers', () => {
     expect(sanitizePollState({ activePollId: null, isOpen: true })).toEqual({
       activePollId: null,
       isOpen: false,
+      votingRound: INITIAL_VOTING_ROUND,
     });
     expect(sanitizePollState({ activePollId: 'poll-1', isOpen: true }).isOpen).toBe(true);
+  });
+
+  it('keep a valid voting round and default a missing one', () => {
+    expect(sanitizePollState({ votingRound: 'abc' }).votingRound).toBe('abc');
+    expect(sanitizePollState({ votingRound: 42 }).votingRound).toBe(INITIAL_VOTING_ROUND);
   });
 
   it('replace invalid vote counts with zero', () => {

@@ -6,7 +6,9 @@
 /**
  * @typedef {{ checkedIn: boolean, at: string | null }} CheckInRecord
  *   `at` is an ISO timestamp, or null when the time is unknown.
- * @typedef {{ activePollId: string | null, isOpen: boolean }} PollState
+ * @typedef {{ activePollId: string | null, isOpen: boolean, votingRound: string }} PollState
+ *   votingRound changes on every "Reset demo data". Phones remember which round they
+ *   voted in, so a reset lets every device vote again, even devices we can't reach.
  * @typedef {{
  *   checkIns: Record<string, CheckInRecord>,
  *   walkIns: object[],
@@ -17,11 +19,23 @@
  *   votes: per poll id, a count for each answer option (index matches the option).
  */
 
+export const INITIAL_VOTING_ROUND = 'initial';
+const BASE_36 = 36;
+
+/** A new, unique-enough round id, e.g. "mh2k9x1a". Time-based so it never repeats. */
+export function createVotingRound(now = new Date()) {
+  return now.getTime().toString(BASE_36);
+}
+
 /** @type {SharedState} */
 export const EMPTY_SHARED_STATE = Object.freeze({
   checkIns: Object.freeze({}),
   walkIns: Object.freeze([]),
-  pollState: Object.freeze({ activePollId: null, isOpen: false }),
+  pollState: Object.freeze({
+    activePollId: null,
+    isOpen: false,
+    votingRound: INITIAL_VOTING_ROUND,
+  }),
   votes: Object.freeze({}),
 });
 
@@ -57,8 +71,12 @@ export function sanitizeWalkIns(value) {
 export function sanitizePollState(value) {
   if (!isPlainObject(value)) return EMPTY_SHARED_STATE.pollState;
   const activePollId = typeof value.activePollId === 'string' ? value.activePollId : null;
+  const votingRound =
+    typeof value.votingRound === 'string' && value.votingRound
+      ? value.votingRound
+      : INITIAL_VOTING_ROUND;
   // A poll can't be open if no poll is selected.
-  return { activePollId, isOpen: activePollId !== null && value.isOpen === true };
+  return { activePollId, isOpen: activePollId !== null && value.isOpen === true, votingRound };
 }
 
 /** Keeps vote counts that are whole, non-negative numbers; anything else counts as 0. */
