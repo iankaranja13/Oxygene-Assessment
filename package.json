@@ -13,7 +13,9 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "qr": "node scripts/generate-poll-qr.mjs"
+    "qr": "node scripts/generate-poll-qr.mjs",
+    "db:schema": "node scripts/apply-schema.mjs",
+    "db:guest-codes": "node scripts/sync-guest-codes.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",
