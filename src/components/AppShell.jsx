@@ -1,7 +1,8 @@
 // Layout used by every route: header, main content area (<Outlet />) and, for staff only, the bottom nav.
-import { Outlet } from 'react-router';
+import { Outlet, useNavigate } from 'react-router';
 import { useStaffAccess } from '../hooks/useStaffAccess.js';
-import { ROLE_LABELS } from '../lib/staffAccess.js';
+import { ROUTES } from '../lib/constants.js';
+import { ROLE_LABELS, staffRoutesForRole } from '../lib/staffAccess.js';
 import Badge from './Badge.jsx';
 import styles from './AppShell.module.css';
 import BottomNav from './BottomNav.jsx';
@@ -13,6 +14,14 @@ const MAIN_CONTENT_ID = 'main-content';
 
 export default function AppShell() {
   const { role, isStaff, lock } = useStaffAccess();
+  const navigate = useNavigate();
+  // A nav with one item is pointless, so ushers (check-in only) don't get one.
+  const showNav = staffRoutesForRole(role).length > 1;
+
+  function lockAndLeave() {
+    lock();
+    navigate(ROUTES.home);
+  }
 
   return (
     <>
@@ -29,7 +38,7 @@ export default function AppShell() {
               <button
                 type="button"
                 className={styles.lockButton}
-                onClick={lock}
+                onClick={lockAndLeave}
                 aria-label="Lock staff screens on this device"
               >
                 <LockIcon size={18} />
@@ -43,11 +52,11 @@ export default function AppShell() {
       <main
         id={MAIN_CONTENT_ID}
         tabIndex={-1}
-        className={[styles.main, isStaff && styles.withNav].filter(Boolean).join(' ')}
+        className={[styles.main, showNav && styles.withNav].filter(Boolean).join(' ')}
       >
         <Outlet />
       </main>
-      {isStaff && <BottomNav role={role} />}
+      {showNav && <BottomNav role={role} />}
     </>
   );
 }
