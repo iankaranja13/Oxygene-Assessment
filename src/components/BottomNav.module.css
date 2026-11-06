@@ -11,7 +11,9 @@
 
 .list {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* One equal column per visible item (2 for ushers, 3 for organizers). */
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
   max-width: var(--content-max-width);
   margin: 0 auto;
   padding: 0;

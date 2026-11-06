@@ -33,3 +33,11 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
+
+/* On the narrowest phones the header also holds the role badge and Lock: drop the
+   product label so nothing overflows (the page title already says where you are). */
+@media (max-width: 24rem) {
+  .product {
+    display: none;
+  }
+}

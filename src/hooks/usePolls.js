@@ -1,6 +1,6 @@
 // Combines the seed poll questions with the live poll state and vote counts.
 import { useMemo } from 'react';
-import { SEED_POLLS } from '../data/seed.js';
+import { SEED_POLLS } from '../data/seedPolls.js';
 import { useSharedState } from './useSharedState.js';
 
 /**

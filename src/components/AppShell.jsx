@@ -1,6 +1,8 @@
 // Layout used by every route: header, main content area (<Outlet />) and, for staff only, the bottom nav.
 import { Outlet } from 'react-router';
 import { useStaffAccess } from '../hooks/useStaffAccess.js';
+import { ROLE_LABELS } from '../lib/staffAccess.js';
+import Badge from './Badge.jsx';
 import styles from './AppShell.module.css';
 import BottomNav from './BottomNav.jsx';
 import { ConnectionBadge, ConnectionBanner } from './ConnectionStatus.jsx';
@@ -10,7 +12,7 @@ import Wordmark from './Wordmark.jsx';
 const MAIN_CONTENT_ID = 'main-content';
 
 export default function AppShell() {
-  const { isStaff, lock } = useStaffAccess();
+  const { role, isStaff, lock } = useStaffAccess();
 
   return (
     <>
@@ -23,6 +25,7 @@ export default function AppShell() {
           {isStaff && (
             <div className={styles.headerActions}>
               <ConnectionBadge />
+              <Badge tone="primary">{ROLE_LABELS[role]}</Badge>
               <button
                 type="button"
                 className={styles.lockButton}
@@ -44,7 +47,7 @@ export default function AppShell() {
       >
         <Outlet />
       </main>
-      {isStaff && <BottomNav />}
+      {isStaff && <BottomNav role={role} />}
     </>
   );
 }

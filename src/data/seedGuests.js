@@ -1,13 +1,11 @@
-// Loads the guest list and poll questions from /data and runs them through normalization.
-// The JSON is bundled into the app at build time (see docs/DECISIONS.md D11), so the
-// guest list is available instantly and keeps working if venue Wi-Fi drops.
+// Loads the guest list from /data and runs it through normalization.
+// Only staff screens import this file. Because those screens are lazy-loaded (App.jsx),
+// the guest list ends up in a separate chunk that attendees on /poll never download.
+// See docs/DECISIONS.md D11 and D27.
 import rawGuests from '../../data/guests.json';
-import rawPolls from '../../data/polls.json';
 import { normalizeGuests } from '../lib/normalizeGuests.js';
-import { normalizePolls } from '../lib/normalizePolls.js';
 
 const guestResult = normalizeGuests(rawGuests);
-const pollResult = normalizePolls(rawPolls);
 
 /** Clean guest records from the supplied list (walk-ins are added at runtime). */
 export const SEED_GUESTS = guestResult.guests;
@@ -15,11 +13,7 @@ export const SEED_GUESTS = guestResult.guests;
 /** What normalization found: skipped rows, merged duplicates, clashes. Shown to organizers. */
 export const GUEST_DATA_REPORT = guestResult.report;
 
-export const SEED_POLLS = pollResult.polls;
-export const SKIPPED_POLLS = pollResult.skipped;
-
 if (import.meta.env.DEV) {
   // Handy during development: shows exactly what the data clean-up did.
   console.info('[LaunchPad] Guest data report', GUEST_DATA_REPORT);
-  if (SKIPPED_POLLS.length) console.warn('[LaunchPad] Skipped polls', SKIPPED_POLLS);
 }

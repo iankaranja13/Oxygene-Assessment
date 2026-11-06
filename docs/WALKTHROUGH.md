@@ -8,15 +8,15 @@ A guided tour of the code, written so every part can be explained to a judge. De
 
 **What it is:** LaunchPad is a mobile-first web app for Oxygene's product launch (about 200 guests).
 
-**Live:** https://oxygene-assessment.vercel.app (staff PIN for the demo: `2026`)
+**Live:** https://oxygene-assessment.vercel.app (demo PINs: usher `2026`, organizer `4826`)
 
 **Three screens:**
 
-| Route        | Who                  | What it does                                                                                       |
-| ------------ | -------------------- | -------------------------------------------------------------------------------------------------- |
-| `/usher`     | Door staff (PIN)     | Search guests or type a ticket code, check in with one tap, undo, add walk-ins                     |
-| `/poll`      | Attendees (no PIN)   | See the active question, vote once per device, see a confirmation                                  |
-| `/organizer` | Events manager (PIN) | Live check-in count, live poll results, choose/open/close polls, reset demo data, guest data notes |
+| Route        | Who                                 | What it does                                                                                       |
+| ------------ | ----------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `/usher`     | Door staff (usher or organizer PIN) | Search guests or type a ticket code, check in with one tap, undo, add walk-ins                     |
+| `/poll`      | Attendees (no PIN)                  | See the active question, vote once per device, see a confirmation                                  |
+| `/organizer` | Events manager (organizer PIN only) | Live check-in count, live poll results, choose/open/close polls, reset demo data, guest data notes |
 
 **Stack:** React 19 + Vite, React Router, plain CSS (design tokens + CSS Modules), Vitest. Shared data lives behind one store interface: **localStorage** (syncs between tabs of one browser) or **Supabase** (syncs across devices in real time). Hosted on Vercel.
 
@@ -64,7 +64,7 @@ flowchart TD
 
 **In words:**
 
-1. **Startup.** The guest and poll JSON files are bundled into the app. `src/data/seed.js` runs them through normalization once at startup (D11).
+1. **Startup.** The poll questions load with the main app (`src/data/seedPolls.js`). The guest list (`src/data/seedGuests.js`) is only imported by the staff screens, which are lazy-loaded, so it downloads and is normalized only after a staff member unlocks a staff screen. Attendees never receive it (D11, D27).
 2. **Reading state.** Live state (check-ins, walk-ins, poll state, votes) lives in `appStore`. Components read it with `useSharedState()`, which uses React's `useSyncExternalStore`. Whenever the store calls its listeners, every subscribed component re-renders with the new snapshot.
 3. **Combining.** `useGuests()` merges the static guest list with live check-ins and walk-ins. `usePolls()` merges the static polls with live poll state and votes.
 4. **Changing state.** User actions go through hooks (`useCheckInActions`, `usePollVote`) or straight from `OrganizerPage` to store methods. Each store method returns `{ ok: true }` or `{ ok: false, error }`, and the UI shows a message either way (D17).
@@ -95,18 +95,18 @@ flowchart TD
 
 ### `src/lib/`: pure logic (no React)
 
-| File                 | Purpose                                                                                 |
-| -------------------- | --------------------------------------------------------------------------------------- |
-| `text.js`            | `cleanText`, `foldForSearch` (case/accent/space folding), `fixAllCapsOrLowerName`       |
-| `normalizeGuests.js` | Turns raw guest rows into clean, flagged guests with stable ids; produces a data report |
-| `normalizePolls.js`  | Validates polls (question + at least 2 distinct options)                                |
-| `search.js`          | `searchGuests`: tokenized, accent-insensitive, ranked search                            |
-| `checkIn.js`         | `getCheckInStatus`, `countCheckIns`, `createCheckInRecord`, `resolveCodeEntry`          |
-| `walkIns.js`         | `validateWalkIn`, `createWalkIn`, `walkInToGuest`                                       |
-| `votes.js`           | `getPollViewState`, `toPercentages`, `tallyVotes`                                       |
-| `formatTime.js`      | `formatCheckInTime` ("17:45" or "time unknown")                                         |
-| `staffAccess.js`     | PIN comparison and the session "unlocked" flag                                          |
-| `constants.js`       | Route paths and app name                                                                |
+| File                 | Purpose                                                                                        |
+| -------------------- | ---------------------------------------------------------------------------------------------- |
+| `text.js`            | `cleanText`, `foldForSearch` (case/accent/space folding), `fixAllCapsOrLowerName`              |
+| `normalizeGuests.js` | Turns raw guest rows into clean, flagged guests with stable ids; produces a data report        |
+| `normalizePolls.js`  | Validates polls (question + at least 2 distinct options)                                       |
+| `search.js`          | `searchGuests`: tokenized, accent-insensitive, ranked search                                   |
+| `checkIn.js`         | `getCheckInStatus`, `countCheckIns`, `createCheckInRecord`, `resolveCodeEntry`                 |
+| `walkIns.js`         | `validateWalkIn`, `createWalkIn`, `walkInToGuest`                                              |
+| `votes.js`           | `getPollViewState`, `toPercentages`, `tallyVotes`                                              |
+| `formatTime.js`      | `formatCheckInTime` ("17:45" or "time unknown")                                                |
+| `staffAccess.js`     | Roles, per-role PINs, `roleForPin`, `canAccess`, which role each route needs, the session role |
+| `constants.js`       | Route paths and app name                                                                       |
 
 ### `src/lib/storage/`: where shared data lives
 
@@ -134,27 +134,28 @@ flowchart TD
 
 ### `src/data/`
 
-| File      | Purpose                                                                                   |
-| --------- | ----------------------------------------------------------------------------------------- |
-| `seed.js` | Imports the JSON, normalizes it, exports `SEED_GUESTS`, `GUEST_DATA_REPORT`, `SEED_POLLS` |
+| File            | Purpose                                                                                             |
+| --------------- | --------------------------------------------------------------------------------------------------- |
+| `seedGuests.js` | Imports and normalizes the guest JSON; exports `SEED_GUESTS`, `GUEST_DATA_REPORT`. Staff-only chunk |
+| `seedPolls.js`  | Imports and validates the poll JSON; exports `SEED_POLLS`                                           |
 
 ### `src/components/`: shared UI
 
-| File                      | Purpose                                                                 |
-| ------------------------- | ----------------------------------------------------------------------- |
-| `AppShell.jsx`            | Header, skip link, `<main>`, connection banner, bottom nav (staff only) |
-| `BottomNav.jsx`           | Check-in / Poll / Dashboard tabs                                        |
-| `PinGate.jsx`             | Shows the PIN form until the session is unlocked                        |
-| `StaffAccessProvider.jsx` | Holds `isStaff`, `unlock(pin)`, `lock()`                                |
-| `StatusMessage.jsx`       | Feedback message with optional Undo, in an always-present live region   |
-| `ConnectionStatus.jsx`    | Offline/connecting banner and the staff "Live" badge                    |
-| `Button.jsx`              | `Button` and `LinkButton` with variants                                 |
-| `Badge.jsx`               | Small labelled pill (status, ticket, warnings)                          |
-| `EmptyState.jsx`          | "Nothing here / no results / error" message with next steps             |
-| `ProgressBar.jsx`         | Accessible `role="progressbar"`                                         |
-| `PageHeader.jsx`          | Page `<h1>` + description, sets tab title                               |
-| `Wordmark.jsx`            | Oxygene wordmark linking home                                           |
-| `icons.jsx`               | Inline SVG icons, all `aria-hidden` and always paired with text         |
+| File                      | Purpose                                                                              |
+| ------------------------- | ------------------------------------------------------------------------------------ |
+| `AppShell.jsx`            | Header, skip link, `<main>`, connection banner, bottom nav (staff only)              |
+| `BottomNav.jsx`           | Check-in / Poll / Dashboard tabs                                                     |
+| `PinGate.jsx`             | Shows the screen if the role is allowed; otherwise asks for the right PIN            |
+| `StaffAccessProvider.jsx` | Holds the device's `role` (`usher`, `organizer` or null), `unlockAs(role)`, `lock()` |
+| `StatusMessage.jsx`       | Feedback message with optional Undo, in an always-present live region                |
+| `ConnectionStatus.jsx`    | Offline/connecting banner and the staff "Live" badge                                 |
+| `Button.jsx`              | `Button` and `LinkButton` with variants                                              |
+| `Badge.jsx`               | Small labelled pill (status, ticket, warnings)                                       |
+| `EmptyState.jsx`          | "Nothing here / no results / error" message with next steps                          |
+| `ProgressBar.jsx`         | Accessible `role="progressbar"`                                                      |
+| `PageHeader.jsx`          | Page `<h1>` + description, sets tab title                                            |
+| `Wordmark.jsx`            | Oxygene wordmark linking home                                                        |
+| `icons.jsx`               | Inline SVG icons, all `aria-hidden` and always paired with text                      |
 
 ### `src/features/`
 
@@ -234,11 +235,13 @@ flowchart TD
 - **`ResetDemo`:** Inline "Reset everything? This can't be undone." On confirm it clears this device's vote flags and calls `appStore.resetAll()`, which clears check-ins, walk-ins and votes, resets poll state and starts a new voting round.
 - **`DataNotes`:** Shows the normalization report: 152 rows became 146 guests, 3 duplicates merged, 3 rows skipped, 1 shared code, 2 shared names (D23).
 
-### 4.7 Staff PIN
+### 4.7 Roles and PINs
 
-- **What is protected.** `/usher` and `/organizer` are wrapped in `PinGate`. `StaffAccessProvider` holds `isStaff`; `unlock(pin)` compares against `VITE_STAFF_PIN` (default `2026`) and stores the flag in sessionStorage, so it lasts until the tab closes. **Lock** clears it.
-- **Navigation.** The bottom nav only renders for unlocked staff, so attendees scanning the QR code see just the poll.
-- **Honest limitation.** This is a **deterrent, not security**: the PIN is in the JavaScript bundle (D8).
+- **Three roles.** Attendees need no PIN and only use `/poll`. Ushers (PIN `2026`) can open check-in. Organizers (PIN `4826`) can open everything, including the dashboard with poll controls and reset.
+- **How it's decided.** `roleForPin` turns a typed PIN into a role. `ROUTE_ROLES` says which role each staff route needs. `canAccess(role, requiredRole)` compares ranks (organizer is above usher). `PinGate` uses these: allowed means show the screen; a valid but insufficient PIN gets a specific message ("That's the usher PIN. This screen needs the organizer PIN."). The role is kept in sessionStorage until the tab closes or **Lock** is tapped.
+- **Navigation per role.** `BottomNav` filters its items with the same `canAccess` rule, so ushers see Check-in and Poll, organizers also see Dashboard, attendees see no nav.
+- **Guest data stays with staff.** `App.jsx` lazy-loads `UsherPage` and `OrganizerPage`. Only they import the guest list, so it lands in its own file that downloads after a staff screen is unlocked. Checked by searching the built files: the main file attendees download contains no guest names or codes.
+- **Honest limitation.** This is a **deterrent, not security**: both PINs are in the main JavaScript file, and the staff files are publicly reachable by URL for someone who goes looking. Real protection needs server-side logins and database rules per role (D8, D27).
 
 ### 4.8 Live sync
 
@@ -340,8 +343,8 @@ Data read back from storage or the network is validated again. Nothing throws on
 **8. What happens offline?**
 The guest list is bundled, so search keeps working once the page has loaded. With Supabase, a banner says "Connection lost"; writes that fail roll back with a clear error, and the store reconnects and catches up automatically. With localStorage there's no network to lose (D11, D24).
 
-**9. How is the PIN secured?**
-It isn't, really. It's a deterrent that keeps curious attendees out of staff screens. The PIN is compiled into the JavaScript. Real protection would be Supabase Auth with staff accounts (D8).
+**9. How do you make sure each role only sees what they should? Is the PIN secure?**
+Partly, and I'm upfront about the limits. Ushers and organizers have separate PINs; ushers can't open the dashboard (no reset, no poll controls) and the nav only shows each role's screens. Attendees never download the guest list, because the staff screens and the guest data are lazy-loaded after a PIN. But the PINs themselves are in the JavaScript, and the database accepts writes from anyone with the public key. So it stops casual misuse, not a determined person. The real fix is Supabase Auth with `usher`/`organizer` accounts, the guest list in the database, and Row Level Security per role (D8, D27).
 
 **10. Why do the percentages always add up to 100?**
 `toPercentages` rounds every option down, then hands the leftover points to the options that lost the most in rounding (largest-remainder method). Plain rounding can show 99% or 101% in total.

@@ -8,15 +8,15 @@
 
 **Live demo:** https://oxygene-assessment.vercel.app
 Poll link for attendees: https://oxygene-assessment.vercel.app/poll (QR code: [`docs/poll-qr.png`](docs/poll-qr.png))
-Staff PIN for `/usher` and `/organizer`: **2026** (demo value)
+Demo PINs: **usher `2026`** (check-in only) · **organizer `4826`** (dashboard and check-in)
 
 The live site syncs across devices through **Supabase** (the staff header shows a **Live** badge): a vote on a phone appears on the organizer's screen in about a second.
 
 ## Try it in two minutes
 
-1. Open `/organizer` on a laptop (PIN `2026`). Under **Poll controls** pick a question, then **Open voting**.
+1. Open `/organizer` on a laptop (organizer PIN `4826`). Under **Poll controls** pick a question, then **Open voting**.
 2. Scan the QR code (or open `/poll`) on a phone. Vote. Watch the bar move on the laptop.
-3. Open `/usher` (PIN `2026`). Search `grace`, tap **Check in**, then **Undo**. Switch to **Enter code** and try `1049`, `1252` (a shared code) and `9999` (not found).
+3. Open `/usher` (usher PIN `2026`). Search `grace`, tap **Check in**, then **Undo**. Switch to **Enter code** and try `1049`, `1252` (a shared code) and `9999` (not found).
 4. Back on the dashboard, the check-in count has moved. **Reset demo data** clears everything for the next run.
 
 ## Run it locally
@@ -46,11 +46,22 @@ Copy `.env.example` to `.env.local`.
 
 | Variable                                                    | Purpose                                          |
 | ----------------------------------------------------------- | ------------------------------------------------ |
-| `VITE_STAFF_PIN`                                            | Staff PIN (default `2026`)                       |
+| `VITE_USHER_PIN`                                            | Usher PIN (default `2026`)                       |
+| `VITE_ORGANIZER_PIN`                                        | Organizer PIN (default `4826`)                   |
 | `VITE_SUPABASE_URL` or `NEXT_PUBLIC_SUPABASE_URL`           | Supabase project URL (enables cross-device sync) |
 | `VITE_SUPABASE_ANON_KEY` or `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase **public** anon/publishable key         |
 
 Only these public values are copied into the browser bundle (an explicit allowlist in `vite.config.js`); secret keys never are.
+
+## Who can see what
+
+| Role      | How they get in            | Can open                                         | Downloads guest list? |
+| --------- | -------------------------- | ------------------------------------------------ | --------------------- |
+| Attendee  | QR code to `/poll`, no PIN | Poll (and the home page)                         | No                    |
+| Usher     | Usher PIN                  | Check-in, Poll                                   | Yes, after unlocking  |
+| Organizer | Organizer PIN              | Dashboard (poll controls, reset), Check-in, Poll | Yes, after unlocking  |
+
+The bottom navigation only shows the screens a role may open. An usher who opens `/organizer` is told it needs the organizer PIN. See DECISIONS D27 for what this does and doesn't protect.
 
 ## Live sync with Supabase
 
@@ -109,7 +120,7 @@ No UI or charting library: plain CSS with design tokens and CSS Modules.
 ## Known limitations (stated honestly)
 
 - **Sync without Supabase:** run locally without Supabase keys, the app uses localStorage, which only syncs between tabs of one browser. (The live site has Supabase connected.)
-- **No real authentication:** the staff PIN is compiled into the JavaScript, so it deters casual attendees but is not security. With Supabase, the tables are writable by anyone holding the public key (Row Level Security is on, with open demo policies; votes can only be added through a database function that checks the poll is open).
+- **No real authentication:** ushers and organizers have separate PINs, and attendees never download the guest list, but both PINs are compiled into the JavaScript, so they deter casual access rather than secure it. The staff screens' files (including the guest list) are still publicly reachable by URL for anyone who goes looking. With Supabase, the tables are writable by anyone holding the public key (Row Level Security is on, with open demo policies; votes can only be added through a database function that checks the poll is open).
 - **No real QR scanning:** typing the code stands in for scanning. A camera scanner would call the same `checkInByCode` function.
 - **Double-vote prevention is per device:** a private window or cleared browser data allows another vote. Real prevention needs identity (login or a one-time code per guest).
 - **Guest list is bundled at build time:** changing it needs a redeploy (about a minute on Vercel).
