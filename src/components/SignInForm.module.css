@@ -58,3 +58,30 @@
   color: var(--color-error);
   font-weight: var(--weight-medium);
 }
+
+.inputRow {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputRow .input {
+  padding-right: 88px;
+}
+
+/* Show/hide toggle: PINs are hidden by default, but guests can check what they typed. */
+.toggle {
+  position: absolute;
+  right: 4px;
+  min-height: var(--touch-target);
+  padding: 0 var(--space-3);
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-primary);
+  font-weight: var(--weight-semibold);
+}
+
+.toggle:hover {
+  background: var(--color-primary-bg);
+}
