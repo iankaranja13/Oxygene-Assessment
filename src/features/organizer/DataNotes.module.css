@@ -1,0 +1,11 @@
+.list {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding-left: var(--space-6);
+  color: var(--color-ink);
+}
+
+.intro {
+  color: var(--color-muted);
+}
