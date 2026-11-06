@@ -106,3 +106,16 @@ Newest entries at the bottom.
   - If the browser refuses to save, the change still shows on screen and the action returns an error message for the UI to show, so nothing fails silently.
 - **Device flags stay local:** "This phone already voted" is about the device, not the event, so it always lives in localStorage even with Supabase.
 - **Rejected:** A generic key/value `useLocalStorage` hook used directly by components (couples every screen to localStorage); a state library like Redux or Zustand (unnecessary for this size of app).
+
+## D15. Search: a plain filter on every keystroke, no index or debounce
+
+- **Decision:** `searchGuests` folds the query (case, accents, spaces), splits it into words, and keeps guests whose pre-folded `searchText` contains _every_ word. Results are ranked: exact code, then names starting with the query, then names with a word starting with it, then other matches, alphabetically within each group. At most 50 cards render, with a "keep typing" hint.
+- **Why:** About 150 guests filter in well under a millisecond, so results appear as the usher types. Matching words in any order means "equity grace" finds the right Grace Wambui. Codes match in any format because each guest's search text includes the code with and without its dash, and an exact code match always comes first.
+- **Rejected:** A fuzzy-search library like Fuse.js (a dependency, plus surprising matches when you need precision at the door); debouncing (adds lag for no benefit at this size); typo tolerance (could surface the wrong guest; the empty state suggests trying surname, organization or code instead).
+
+## D16. Usher screen layout
+
+- **Decision:** A compact header with a live "X of Y checked in" count, then a large, sticky, auto-focused search box. Results are cards showing name, organization, ticket badge, code, status badge and data warnings. Placeholder values ("Unnamed guest", "No organization") are shown in muted italics so they're never mistaken for real data.
+- **Status never relies on colour alone:** "✓ Checked in · 17:45" or "Not checked in" as text, reinforced by a green left edge.
+- **Known limitation:** iOS Safari only opens the keyboard on focus that follows a tap. Arriving at `/usher` via the nav does that; a cold page load focuses the box but needs one tap to raise the keyboard.
+- **Rejected:** A table layout (cramped on a 360px screen); hiding data warnings (ushers need them to resolve duplicates and shared codes on the spot).

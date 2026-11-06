@@ -59,6 +59,7 @@
   /* Touch and layout */
   --touch-target: 48px; /* above the 44px minimum, easier one-handed */
   --nav-height: 64px;
+  --header-height: 56px;
   --content-max-width: 40rem; /* comfortable reading width on tablet/desktop */
   --content-wide-max-width: 72rem; /* organizer dashboard on big screens */
 }

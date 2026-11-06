@@ -1,0 +1,21 @@
+.page {
+  max-width: var(--content-wide-max-width);
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.title {
+  font-size: var(--text-xl);
+}
+
+.progress {
+  font-weight: var(--weight-semibold);
+  color: var(--color-primary);
+}
