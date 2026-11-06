@@ -6,9 +6,12 @@ import { createMemoryBackend, createThrowingBackend } from './testBackends.js';
 
 const CHECKED_IN = { checkedIn: true, at: '2026-11-20T15:00:00.000Z' };
 
+const GUEST_CODES = new Set(['OXY-1001', 'OXY-1002']);
+const isGuestCode = async (code) => GUEST_CODES.has(code);
+
 function setup(backend = createMemoryBackend(), eventTarget = null) {
   const storage = createSafeStorage(() => backend);
-  return { backend, storage, store: createLocalStore({ storage, eventTarget }) };
+  return { backend, storage, store: createLocalStore({ storage, eventTarget, isGuestCode }) };
 }
 
 /** Simulates the "storage" event the browser fires in other tabs. */
@@ -64,19 +67,19 @@ describe('createLocalStore', () => {
 
   it('only accepts votes for the open, active poll', async () => {
     const { store } = setup();
-    expect(await store.castVote('poll-1', 0)).toEqual({
+    expect(await store.castVote('poll-1', 0, 'OXY-1001')).toEqual({
       ok: false,
       error: STORE_ERRORS.POLL_CLOSED,
     });
 
     await store.setPollState({ activePollId: 'poll-1', isOpen: true });
-    expect(await store.castVote('poll-1', 2)).toEqual({ ok: true });
-    expect(await store.castVote('poll-1', 2)).toEqual({ ok: true });
-    expect(await store.castVote('poll-2', 0)).toEqual({
+    expect(await store.castVote('poll-1', 2, 'OXY-1001')).toEqual({ ok: true });
+    expect(await store.castVote('poll-1', 2, 'OXY-1002')).toEqual({ ok: true });
+    expect(await store.castVote('poll-2', 0, 'OXY-1001')).toEqual({
       ok: false,
       error: STORE_ERRORS.POLL_CLOSED,
     });
-    expect(await store.castVote('poll-1', -1)).toEqual({
+    expect(await store.castVote('poll-1', -1, 'OXY-1001')).toEqual({
       ok: false,
       error: STORE_ERRORS.INVALID_OPTION,
     });
@@ -84,7 +87,46 @@ describe('createLocalStore', () => {
 
     await store.setPollState({ isOpen: false });
     expect(store.getState().pollState.activePollId).toBe('poll-1');
-    expect((await store.castVote('poll-1', 0)).ok).toBe(false);
+    expect((await store.castVote('poll-1', 0, 'OXY-1001')).ok).toBe(false);
+  });
+
+  it('allows one vote per check-in code per poll, and only real codes', async () => {
+    const { store } = setup();
+    await store.setPollState({ activePollId: 'poll-1', isOpen: true });
+    expect(await store.castVote('poll-1', 0, 'OXY-1001')).toEqual({ ok: true });
+    expect(await store.castVote('poll-1', 1, 'OXY-1001')).toEqual({
+      ok: false,
+      error: STORE_ERRORS.ALREADY_VOTED,
+    });
+    expect(await store.castVote('poll-1', 1, 'OXY-9999')).toEqual({
+      ok: false,
+      error: STORE_ERRORS.INVALID_CODE,
+    });
+    expect(store.getState().votes).toEqual({ 'poll-1': [1] });
+  });
+
+  it('verifies attendee codes', async () => {
+    const { store } = setup();
+    expect(await store.verifyAttendeeCode('OXY-1001')).toEqual({ ok: true, valid: true });
+    expect(await store.verifyAttendeeCode('OXY-9999')).toEqual({ ok: true, valid: false });
+    expect(await store.verifyAttendeeCode('')).toEqual({ ok: true, valid: false });
+  });
+
+  it('creates polls, and deletes only unused polls that are not on screen', async () => {
+    const { store } = setup();
+    const poll = { id: 'custom-1', question: 'Q?', options: ['A', 'B'] };
+    await store.createPoll(poll);
+    expect(store.getState().customPolls).toEqual([poll]);
+
+    await store.setPollState({ activePollId: 'custom-1', isOpen: true });
+    expect((await store.deletePoll('custom-1')).error).toBe(STORE_ERRORS.POLL_IS_ACTIVE);
+    await store.castVote('custom-1', 0, 'OXY-1001');
+    await store.setPollState({ activePollId: null });
+    expect((await store.deletePoll('custom-1')).error).toBe(STORE_ERRORS.POLL_HAS_VOTES);
+
+    await store.createPoll({ id: 'custom-2', question: 'Q2?', options: ['A', 'B'] });
+    expect(await store.deletePoll('custom-2')).toEqual({ ok: true });
+    expect(store.getState().customPolls.map((item) => item.id)).toEqual(['custom-1']);
   });
 
   it('merges poll state changes and keeps the voting round', async () => {
@@ -110,12 +152,21 @@ describe('createLocalStore', () => {
     const { storage, store } = setup();
     await store.setCheckIn('G1', CHECKED_IN);
     await store.setPollState({ activePollId: 'poll-1', isOpen: true });
-    await store.castVote('poll-1', 0);
+    await store.castVote('poll-1', 0, 'OXY-1001');
+    const customPoll = { id: 'custom-1', question: 'Q?', options: ['A', 'B'] };
+    await store.createPoll(customPoll);
 
     const roundBefore = store.getState().pollState.votingRound;
     expect(await store.resetAll()).toEqual({ ok: true });
     const { pollState, ...rest } = store.getState();
-    expect(rest).toEqual({ checkIns: {}, walkIns: [], votes: {} });
+    // Activity is cleared; polls the organizer prepared are kept.
+    expect(rest).toEqual({
+      checkIns: {},
+      walkIns: [],
+      votes: {},
+      votedCodes: {},
+      customPolls: [customPoll],
+    });
     expect(pollState).toMatchObject({ activePollId: null, isOpen: false });
     // A new voting round means every device's "already voted" flag no longer applies.
     expect(pollState.votingRound).not.toBe(roundBefore);

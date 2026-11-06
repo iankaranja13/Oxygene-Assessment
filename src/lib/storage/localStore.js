@@ -7,9 +7,11 @@
 //   subscribe(listener)   -> unsubscribe function; listener runs after every change,
 //                            including changes made in other tabs of this browser
 //   getConnectionStatus() -> one of CONNECTION_STATUS (see below)
-//   setCheckIn(guestId, record), addWalkIn(walkIn), castVote(pollId, optionIndex),
-//   setPollState(changes) (merged into the current poll state), resetAll()
+//   setCheckIn(guestId, record), addWalkIn(walkIn),
+//   castVote(pollId, optionIndex, voterCode), setPollState(changes) (merged into the
+//   current poll state), createPoll(poll), deletePoll(pollId), resetAll()
 //                         -> Promise<{ ok: true } | { ok: false, error: string }>
+//   verifyAttendeeCode(code) -> Promise<{ ok: true, valid: boolean } | { ok: false, error }>
 // Actions are async because a network-backed store has to be.
 
 import { STORAGE_PREFIX, browserLocalStorage } from './safeStorage.js';
@@ -18,7 +20,9 @@ import {
   addVote,
   createVotingRound,
   sanitizeCheckIns,
+  sanitizeCustomPolls,
   sanitizePollState,
+  sanitizeVotedCodes,
   sanitizeVotes,
   sanitizeWalkIns,
 } from './sharedState.js';
@@ -29,14 +33,33 @@ export const SLICES = Object.freeze({
   walkIns: { key: 'walk-ins', sanitize: sanitizeWalkIns },
   pollState: { key: 'poll-state', sanitize: sanitizePollState },
   votes: { key: 'votes', sanitize: sanitizeVotes },
+  customPolls: { key: 'custom-polls', sanitize: sanitizeCustomPolls },
+  votedCodes: { key: 'voted-codes', sanitize: sanitizeVotedCodes },
 });
+
+// "Reset demo data" clears event activity but keeps polls the organizer prepared.
+const SLICES_KEPT_ON_RESET = ['customPolls'];
 
 export const STORE_ERRORS = Object.freeze({
   NOT_SAVED:
     "This browser wouldn't save the change. It's shown here but may be lost if the page reloads.",
   POLL_CLOSED: 'Voting is closed for this poll.',
   INVALID_OPTION: "That answer isn't one of the options.",
+  INVALID_CODE: "We couldn't find that check-in code. Check your ticket, or ask an usher.",
+  ALREADY_VOTED: 'This check-in code has already voted in this poll.',
+  POLL_HAS_VOTES: 'This poll already has votes, so it can’t be deleted.',
+  POLL_IS_ACTIVE: 'This poll is on attendees’ screens. Show a different poll first.',
 });
+
+/**
+ * Local-mode check that a code belongs to a guest. It loads the guest list on demand
+ * (a separate file), which is acceptable for a single-browser demo. With Supabase the
+ * codes stay in the database and phones never receive them.
+ */
+async function isGuestCodeFromSeedData(code) {
+  const { SEED_GUESTS } = await import('../../data/seedGuests.js');
+  return SEED_GUESTS.some((guest) => guest.checkInCode === code);
+}
 
 const OK = Object.freeze({ ok: true });
 
@@ -56,10 +79,12 @@ const STORAGE_EVENT = 'storage';
  *   Injectable so tests can use an in-memory or deliberately broken storage.
  * @param {EventTarget | null} [options.eventTarget] where "storage" events arrive
  *   (window in the browser; a fake in tests; null to disable cross-tab sync).
+ * @param {(code: string) => Promise<boolean>} [options.isGuestCode] checks attendee codes.
  */
 export function createLocalStore({
   storage = browserLocalStorage,
   eventTarget = typeof window === 'undefined' ? null : window,
+  isGuestCode = isGuestCodeFromSeedData,
 } = {}) {
   const listeners = new Set();
   let state = readAllSlices(EMPTY_SHARED_STATE);
@@ -132,16 +157,49 @@ export function createLocalStore({
       return updateSlice('walkIns', (walkIns) => [...walkIns, walkIn]);
     },
 
-    async castVote(pollId, optionIndex) {
+    async verifyAttendeeCode(code) {
+      return { ok: true, valid: Boolean(code) && (await isGuestCode(code)) };
+    },
+
+    /** One vote per check-in code per poll, only while that poll is active and open. */
+    async castVote(pollId, optionIndex, voterCode) {
       if (!Number.isInteger(optionIndex) || optionIndex < 0) {
         return { ok: false, error: STORE_ERRORS.INVALID_OPTION };
+      }
+      if (!voterCode || !(await isGuestCode(voterCode))) {
+        return { ok: false, error: STORE_ERRORS.INVALID_CODE };
       }
       // Check the latest poll state, not this tab's copy: the organizer may have just closed it.
       const pollState = sanitizePollState(storage.readJson(SLICES.pollState.key, state.pollState));
       if (pollState.activePollId !== pollId || !pollState.isOpen) {
         return { ok: false, error: STORE_ERRORS.POLL_CLOSED };
       }
+      const votedCodes = sanitizeVotedCodes(
+        storage.readJson(SLICES.votedCodes.key, state.votedCodes),
+      );
+      if (votedCodes[pollId]?.includes(voterCode)) {
+        return { ok: false, error: STORE_ERRORS.ALREADY_VOTED };
+      }
+      updateSlice('votedCodes', (codes) => ({
+        ...codes,
+        [pollId]: [...(codes[pollId] ?? []), voterCode],
+      }));
       return updateSlice('votes', (votes) => addVote(votes, pollId, optionIndex));
+    },
+
+    async createPoll(poll) {
+      return updateSlice('customPolls', (polls) => [...polls, poll]);
+    },
+
+    /** Only polls with no votes that aren't on screen can be deleted, so no results are lost. */
+    async deletePoll(pollId) {
+      if (state.pollState.activePollId === pollId) {
+        return { ok: false, error: STORE_ERRORS.POLL_IS_ACTIVE };
+      }
+      if ((state.votes[pollId] ?? []).some((count) => count > 0)) {
+        return { ok: false, error: STORE_ERRORS.POLL_HAS_VOTES };
+      }
+      return updateSlice('customPolls', (polls) => polls.filter((poll) => poll.id !== pollId));
     },
 
     /** Merges changes, e.g. { isOpen: false }, so the voting round is never lost. */
@@ -151,14 +209,16 @@ export function createLocalStore({
       );
     },
 
-    /** Clears everything and starts a new voting round, so every device may vote again. */
+    /** Clears event activity and starts a new voting round, so everyone may vote again. */
     async resetAll() {
       const freshState = {
         ...EMPTY_SHARED_STATE,
         pollState: { ...EMPTY_SHARED_STATE.pollState, votingRound: createVotingRound() },
+        customPolls: state.customPolls,
       };
       let allSaved = true;
       for (const [name, { key }] of Object.entries(SLICES)) {
+        if (SLICES_KEPT_ON_RESET.includes(name)) continue;
         // Write empty values (rather than deleting keys) so other tabs see the change.
         allSaved = storage.writeJson(key, freshState[name]) && allSaved;
       }
