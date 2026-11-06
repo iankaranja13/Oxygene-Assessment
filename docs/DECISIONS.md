@@ -163,3 +163,12 @@ Newest entries at the bottom.
 - **Decision:** `getPollViewState` maps `{ activePoll, isOpen, hasVoted }` to exactly one of: no active poll, open, already voted, closed. "Already voted" wins over "closed", so voters keep their thank-you. An active poll id that doesn't exist (or corrupted state) counts as "no active poll".
 - **Server-side check too:** The store re-checks that the poll is still open when the vote arrives, so a vote submitted just after the organizer closes voting is rejected with "Voting is closed for this poll."
 - **Percentages:** `toPercentages` uses the largest-remainder method, so displayed percentages always total exactly 100 (plain rounding can show 33 + 33 + 33 = 99).
+
+## D23. Organizer dashboard
+
+- **Layout:** One column on phones (check-ins, controls, results, data notes, reset). On screens 1024px and wider, results take a wide, sticky right-hand column, so it works projected on a big screen.
+- **Results chart:** Each poll is a single series, so it uses horizontal bars in one brand colour. Every bar carries its percentage and count as text (no legend needed, and nothing is colour-only). The leading answer is bolded. Bars are hidden from screen readers because the text already holds the numbers.
+- **Poll controls:** Choosing a poll always sets voting to _closed_, so a question never goes live by accident; a separate Open/Close voting button makes going live a deliberate act. Each poll shows its vote total.
+- **Reset:** Inline confirmation ("Reset everything? This can't be undone."). It clears check-ins, walk-ins, votes and poll state, starts a new voting round (see D21), and clears this device's own vote flags.
+- **Data notes:** Shows what normalization did (rows in, guests out, duplicates merged, rows skipped, shared codes, shared names), so the organizer can explain why 152 rows became 146 guests.
+- **Rejected:** A charting library (overkill for a few bars); a modal confirmation dialog (focus-trap complexity for no benefit over an inline confirm).

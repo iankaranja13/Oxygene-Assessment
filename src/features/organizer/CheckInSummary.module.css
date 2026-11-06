@@ -1,0 +1,30 @@
+.headline {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+}
+
+.count {
+  font-family: var(--font-heading);
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
+  line-height: 1;
+}
+
+.total {
+  font-size: var(--text-lg);
+  color: var(--color-muted);
+}
+
+.percent {
+  margin-left: auto;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  color: var(--color-primary);
+}
+
+.details {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}

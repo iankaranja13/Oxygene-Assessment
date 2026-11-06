@@ -1,0 +1,23 @@
+.text {
+  color: var(--color-muted);
+}
+
+.confirm {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-left: 4px solid var(--color-error);
+  border-radius: var(--radius-card);
+  background: var(--color-error-bg);
+}
+
+.confirmActions {
+  display: grid;
+  gap: var(--space-3);
+}
+
+@media (min-width: 30rem) {
+  .confirmActions {
+    grid-template-columns: 1fr 1fr;
+  }
+}

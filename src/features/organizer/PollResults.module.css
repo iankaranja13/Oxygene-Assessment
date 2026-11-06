@@ -1,0 +1,73 @@
+.question {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  line-height: 1.3;
+}
+
+.total {
+  color: var(--color-muted);
+}
+
+.list {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: grid;
+  gap: var(--space-1);
+}
+
+/* Label left, numbers right, always in text ink (never the bar colour). */
+.labels {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-weight: var(--weight-medium);
+}
+
+.numbers {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.percent {
+  font-weight: var(--weight-semibold);
+}
+
+.count {
+  color: var(--color-muted);
+}
+
+/* Bars: thin, one hue, rounded data-end, on a recessive track that shows the 0-100 scale. */
+.track {
+  height: 16px;
+  border-radius: 4px;
+  background: var(--color-surface);
+  box-shadow: inset 0 0 0 1px var(--color-border);
+}
+
+.bar {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--color-primary);
+  transition: width 400ms ease;
+}
+
+/* The leading answer gets a heavier label, so the winner is clear without colour. */
+.leading .labels {
+  font-weight: var(--weight-bold);
+}
+
+@media (min-width: 64rem) {
+  .question {
+    font-size: var(--text-2xl);
+  }
+
+  .track {
+    height: 24px;
+  }
+}
