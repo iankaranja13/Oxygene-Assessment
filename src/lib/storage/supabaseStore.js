@@ -14,6 +14,7 @@ import { EMPTY_SHARED_STATE, createVotingRound, sanitizePollState } from './shar
 import {
   checkInToRow,
   checkInsFromRows,
+  customPollsFromRows,
   pollStateFromRow,
   pollStateToRow,
   votesFromRows,
@@ -25,7 +26,19 @@ const NETWORK_ERROR =
 const OK = Object.freeze({ ok: true });
 const POLL_STATE_ROW_ID = 1;
 const SAFETY_NET_POLL_MS = 15_000;
-const VOTE_ACCEPTED = 'ok';
+// What the database functions return, mapped to the same errors the local store uses.
+const VOTE_RESULTS = Object.freeze({
+  ok: null,
+  closed: STORE_ERRORS.POLL_CLOSED,
+  'invalid-code': STORE_ERRORS.INVALID_CODE,
+  'already-voted': STORE_ERRORS.ALREADY_VOTED,
+  'invalid-option': STORE_ERRORS.INVALID_OPTION,
+});
+const DELETE_POLL_RESULTS = Object.freeze({
+  ok: null,
+  active: STORE_ERRORS.POLL_IS_ACTIVE,
+  'has-votes': STORE_ERRORS.POLL_HAS_VOTES,
+});
 const CHANNEL_NAME = 'launchpad-shared-state';
 const CHANNEL_FAILURES = ['CHANNEL_ERROR', 'TIMED_OUT', 'CLOSED'];
 
@@ -35,6 +48,7 @@ const TABLE_TO_SLICE = Object.freeze({
   walk_ins: 'walkIns',
   poll_state: 'pollState',
   votes: 'votes',
+  polls: 'customPolls',
 });
 
 /** Awaits a Supabase request and throws its error, so callers can use try/catch. */
@@ -69,6 +83,10 @@ export function createSupabaseStore({ url, key, client = createClient(url, key) 
       ),
     votes: async () =>
       votesFromRows(await rowsOf(client.from('votes').select('poll_id, option_index'))),
+    customPolls: async () =>
+      customPollsFromRows(
+        await rowsOf(client.from('polls').select('id, question, options').order('created_at')),
+      ),
   };
 
   function notify() {
@@ -129,6 +147,13 @@ export function createSupabaseStore({ url, key, client = createClient(url, key) 
     }
   }
 
+  /** Calls a database function; returns its result, or throws on network/server error. */
+  async function callFunction(name, args) {
+    const { data, error } = await client.rpc(name, args);
+    if (error) throw error;
+    return data;
+  }
+
   /**
    * Shows a change immediately, saves it, and rolls back if saving fails.
    * @param {object} optimisticChanges slices to show straight away
@@ -177,24 +202,58 @@ export function createSupabaseStore({ url, key, client = createClient(url, key) 
       );
     },
 
-    async castVote(pollId, optionIndex) {
+    async verifyAttendeeCode(code) {
+      try {
+        // The database checks the private guest_codes table; the phone never sees it.
+        return {
+          ok: true,
+          valid: (await callFunction('verify_attendee_code', { p_code: code })) === true,
+        };
+      } catch (error) {
+        console.warn('Code check failed:', error);
+        return { ok: false, error: NETWORK_ERROR };
+      }
+    },
+
+    async castVote(pollId, optionIndex, voterCode) {
       if (!Number.isInteger(optionIndex) || optionIndex < 0) {
         return { ok: false, error: STORE_ERRORS.INVALID_OPTION };
       }
       try {
-        // The database function checks the poll is active and open, then records the vote.
-        const { data, error } = await client.rpc('cast_vote', {
+        // The database checks the code, that the poll is open, and one vote per code.
+        const result = await callFunction('cast_vote', {
           p_poll_id: pollId,
           p_option_index: optionIndex,
+          p_voter_code: voterCode,
         });
-        if (error) throw error;
-        if (data !== VOTE_ACCEPTED) {
-          return { ok: false, error: STORE_ERRORS.POLL_CLOSED };
-        }
+        const error = VOTE_RESULTS[result];
+        if (error === undefined) throw new Error(`Unexpected vote result: ${result}`);
+        if (error) return { ok: false, error };
         await refreshSlice('votes');
         return OK;
       } catch (error) {
         console.warn('Vote failed:', error);
+        return { ok: false, error: NETWORK_ERROR };
+      }
+    },
+
+    async createPoll(poll) {
+      return saveOptimistically({ customPolls: [...state.customPolls, poll] }, () =>
+        rowsOf(client.from('polls').insert(poll)),
+      );
+    },
+
+    async deletePoll(pollId) {
+      try {
+        // The database refuses if the poll has votes or is on screen, so results are never lost.
+        const result = await callFunction('delete_custom_poll', { p_poll_id: pollId });
+        const error = DELETE_POLL_RESULTS[result];
+        if (error === undefined) throw new Error(`Unexpected delete result: ${result}`);
+        if (error) return { ok: false, error };
+        await refreshSlice('customPolls');
+        return OK;
+      } catch (error) {
+        console.warn('Delete poll failed:', error);
         return { ok: false, error: NETWORK_ERROR };
       }
     },
@@ -213,11 +272,11 @@ export function createSupabaseStore({ url, key, client = createClient(url, key) 
       const freshState = {
         ...EMPTY_SHARED_STATE,
         pollState: { ...EMPTY_SHARED_STATE.pollState, votingRound },
+        customPolls: state.customPolls, // prepared polls are kept
       };
-      return saveOptimistically(freshState, async () => {
-        const { error } = await client.rpc('reset_demo', { p_voting_round: votingRound });
-        if (error) throw error;
-      });
+      return saveOptimistically(freshState, () =>
+        callFunction('reset_demo', { p_voting_round: votingRound }),
+      );
     },
   };
 }

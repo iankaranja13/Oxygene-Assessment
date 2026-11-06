@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   checkInToRow,
   checkInsFromRows,
+  customPollsFromRows,
   pollStateFromRow,
   pollStateToRow,
   votesFromRows,
@@ -62,5 +63,14 @@ describe('supabase row mapping', () => {
         { poll_id: null, option_index: 0 },
       ]),
     ).toEqual({ p1: [1, 2], p2: [0, 0, 1] });
+  });
+
+  it('maps organizer-created poll rows', () => {
+    expect(
+      customPollsFromRows([
+        { id: 'custom-1', question: 'Q?', options: ['A', 'B'], created_at: 'x' },
+        { id: 'custom-2', question: 'Bad', options: 'nope' },
+      ]),
+    ).toEqual([{ id: 'custom-1', question: 'Q?', options: ['A', 'B'] }]);
   });
 });

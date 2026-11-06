@@ -62,13 +62,40 @@ describe('createSupabaseStore', () => {
     expect(store.getState().checkIns).toEqual({});
   });
 
-  it('reports a closed poll when the database rejects the vote', async () => {
+  it.each([
+    ['closed', STORE_ERRORS.POLL_CLOSED],
+    ['invalid-code', STORE_ERRORS.INVALID_CODE],
+    ['already-voted', STORE_ERRORS.ALREADY_VOTED],
+  ])('explains a vote the database rejected as %s', async (result, error) => {
     const store = createSupabaseStore({
-      client: createFakeClient({ rpcResults: { cast_vote: 'closed' } }),
+      client: createFakeClient({ rpcResults: { cast_vote: result } }),
     });
-    expect(await store.castVote('poll-1', 0)).toEqual({
+    expect(await store.castVote('poll-1', 0, 'OXY-1049')).toEqual({ ok: false, error });
+  });
+
+  it('sends the voter code and checks attendee codes on the server', async () => {
+    const client = createFakeClient({
+      rpcResults: { verify_attendee_code: true, cast_vote: 'ok' },
+    });
+    const store = createSupabaseStore({ client });
+    expect(await store.verifyAttendeeCode('OXY-1049')).toEqual({ ok: true, valid: true });
+    await store.castVote('poll-1', 2, 'OXY-1049');
+    expect(client.writes).toContainEqual([
+      'rpc',
+      'cast_vote',
+      { p_poll_id: 'poll-1', p_option_index: 2, p_voter_code: 'OXY-1049' },
+    ]);
+  });
+
+  it('creates polls optimistically and reports refused deletes', async () => {
+    const client = createFakeClient({ rpcResults: { delete_custom_poll: 'has-votes' } });
+    const store = createSupabaseStore({ client });
+    const poll = { id: 'custom-1', question: 'Q?', options: ['A', 'B'] };
+    expect(await store.createPoll(poll)).toEqual({ ok: true });
+    expect(store.getState().customPolls).toEqual([poll]);
+    expect(await store.deletePoll('custom-1')).toEqual({
       ok: false,
-      error: STORE_ERRORS.POLL_CLOSED,
+      error: STORE_ERRORS.POLL_HAS_VOTES,
     });
   });
 
@@ -78,7 +105,7 @@ describe('createSupabaseStore', () => {
       tables: { votes: [{ poll_id: 'poll-1', option_index: 1 }] },
     });
     const store = createSupabaseStore({ client });
-    expect(await store.castVote('poll-1', 1)).toEqual({ ok: true });
+    expect(await store.castVote('poll-1', 1, 'OXY-1049')).toEqual({ ok: true });
     expect(store.getState().votes).toEqual({ 'poll-1': [0, 1] });
   });
 
