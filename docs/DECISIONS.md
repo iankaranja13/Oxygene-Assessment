@@ -184,3 +184,9 @@ Newest entries at the bottom.
 - **Connection status:** Staff see a header badge (Live / This browser only / Connecting / Offline). Everyone sees a banner when connecting or offline, and the poll screen says "Loading the live poll" instead of briefly flashing "No poll right now".
 - **Honest security limitation:** With no real login, the tables are writable by anyone holding the public key (which ships in the page). Acceptable for a one-evening demo; production would add Supabase Auth for staff and move check-in writes behind staff-only policies.
 - **Rejected:** BroadcastChannel (the `storage` event already covers tabs with no extra code); Firebase (equivalent, but Postgres tables are easier to inspect and explain); a custom WebSocket server (more to build, host and explain); computing vote totals in the database with a view (not needed at a few hundred rows).
+
+## D25. Accessibility verification
+
+- **How it was checked:** An automated axe-core audit (WCAG 2.0/2.1 A and AA, plus best practices) ran on 13 screens and states: home, PIN gate, usher (empty, results, checked in, no results, walk-in form, ambiguous code), organizer, poll (none, open, voted) and 404. One issue was found and fixed (the open poll lacked an `<h1>`; the question is now an `<h1>` inside the `<legend>`). The other 12 had zero violations.
+- **Manual checks:** keyboard-only voting (Tab, then arrow keys), visible focus rings, screen layouts at 360, 390, 768 and 1280px wide, and every colour pair measured against AA (D7).
+- **Not done (honest):** testing with a real screen reader on iOS/Android, and testing with real users at a door. Automated tools catch roughly a third to a half of accessibility issues.
