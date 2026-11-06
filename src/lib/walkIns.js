@@ -66,7 +66,7 @@ export function walkInToGuest(walkIn) {
   if (!result.guest) {
     return null;
   }
-  // eslint-disable-next-line no-unused-vars -- sourceId is replaced by the stored id
+  // sourceId is dropped: walk-ins use the id they were stored with.
   const { sourceId, flags, ...guest } = result.guest;
   return {
     ...guest,
