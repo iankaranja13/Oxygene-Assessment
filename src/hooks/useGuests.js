@@ -1,7 +1,7 @@
 // Combines the guest list (plus walk-ins) with live check-in state, so screens get guests
 // ready to display.
 import { useMemo } from 'react';
-import { GUEST_DATA_REPORT, SEED_GUESTS } from '../data/seed.js';
+import { GUEST_DATA_REPORT, SEED_GUESTS } from '../data/seedGuests.js';
 import { countCheckIns, getCheckInStatus } from '../lib/checkIn.js';
 import { walkInToGuest } from '../lib/walkIns.js';
 import { useSharedState } from './useSharedState.js';
