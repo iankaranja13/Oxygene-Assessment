@@ -119,3 +119,27 @@ Newest entries at the bottom.
 - **Status never relies on colour alone:** "✓ Checked in · 17:45" or "Not checked in" as text, reinforced by a green left edge.
 - **Known limitation:** iOS Safari only opens the keyboard on focus that follows a tap. Arriving at `/usher` via the nav does that; a cold page load focuses the box but needs one tap to raise the keyboard.
 - **Rejected:** A table layout (cramped on a 360px screen); hiding data warnings (ushers need them to resolve duplicates and shared codes on the spot).
+
+## D17. Check-in feedback and undo
+
+- **Decision:** Every action produces one message, shown directly under the input inside the sticky controls, with an icon, plain words and (for changes) an **Undo** button. Undo restores the guest's _exact_ previous status, so undoing a check-in for someone the original list marked as arrived puts them back to "checked in".
+- **Why under the input:** That's where the usher is looking, and it stays visible with the phone keyboard open. A bottom "toast" would be hidden behind the keyboard on iOS.
+- **No auto-dismiss:** The message stays until the next action or until it's dismissed, so Undo never disappears while someone is reaching for it (WCAG 2.2.1, timing adjustable).
+- **Double taps:** The card's button is disabled while saving, and checking in an already-checked-in guest shows "already checked in (17:45)" instead of overwriting the original time.
+- **After a check-in from search:** the search text is re-focused and selected, so typing the next name replaces it while the card still shows the result.
+- **Rejected:** A confirmation dialog before check-in (slower at a busy door; Undo is the safer, faster pattern); toast notifications that time out.
+
+## D18. Typed code entry as the QR stand-in
+
+- **Decision:** A "Find guest / Enter code" switch. Code mode has a numeric keypad input; pressing **Check in** checks the guest in immediately, like a scanner would. `resolveCodeEntry` returns one of five outcomes: empty, not found, ambiguous, already checked in, or ready.
+- **Ambiguous codes:** When several guests share a code, nobody is checked in. Instead, all of them are listed with their own Check in buttons, and the usher asks for a name. We never guess.
+- **After a code:** On success the box clears for the next guest; on a problem the code stays selected so retyping replaces it.
+- **Why a separate mode:** Search already finds codes, but a scanner-style "type, then go" flow is one action shorter and mirrors how a real QR scanner would plug in later (it would call the same `checkInByCode`).
+- **Trade-off:** `inputMode="numeric"` gives a big number pad but no letters. Sample codes are `OXY-` plus digits, and the prefix is optional. If real codes contain letters, it's a one-word change.
+
+## D19. Walk-ins
+
+- **Decision:** "Add a walk-in" appears in the empty search state and when a search finds nothing (pre-filled with what was typed). The form asks for name (required), organization (optional) and ticket type (defaults to General: here staff are choosing it deliberately, unlike missing list data). Saving adds the guest and checks them in, then shows their card.
+- **Duplicate guard:** If the name matches someone on the list (ignoring case and accents), the form lists those guests and changes the button to "Add anyway".
+- **Storage:** Walk-ins are stored in shared state and pass through the same normalization as list guests when read back, flagged with a "Walk-in" badge.
+- **Rejected:** Letting walk-ins be edited or deleted (scope; Undo un-checks them, and the organizer can reset demo data).
