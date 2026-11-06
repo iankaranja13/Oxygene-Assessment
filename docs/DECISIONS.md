@@ -190,3 +190,13 @@ Newest entries at the bottom.
 - **How it was checked:** An automated axe-core audit (WCAG 2.0/2.1 A and AA, plus best practices) ran on 13 screens and states: home, PIN gate, usher (empty, results, checked in, no results, walk-in form, ambiguous code), organizer, poll (none, open, voted) and 404. One issue was found and fixed (the open poll lacked an `<h1>`; the question is now an `<h1>` inside the `<legend>`). The other 12 had zero violations.
 - **Manual checks:** keyboard-only voting (Tab, then arrow keys), visible focus rings, screen layouts at 360, 390, 768 and 1280px wide, and every colour pair measured against AA (D7).
 - **Not done (honest):** testing with a real screen reader on iOS/Android, and testing with real users at a door. Automated tools catch roughly a third to a half of accessibility issues.
+
+## D26. Supabase provisioned through the Vercel Marketplace
+
+- **Decision:** Supabase was installed with `vercel integration add supabase`, which created the database and set its environment variables on the Vercel project for every environment. The schema was applied with `node scripts/apply-schema.mjs`.
+- **Why:** No keys copied by hand, unified billing, and the deployed build picks up the public URL and key automatically (mapped by `vite.config.js`).
+- **Verified:**
+  - The production bundle contains the public URL and anon key, but **not** the service-role key, secret key, JWT secret or database password (checked by searching the built JavaScript).
+  - On the live site, with two separate browser profiles standing in for two devices: opening a poll reached the "phone" in about 1.7s, a vote reached the "laptop" in about 1.3s, and check-ins, closing voting and reset all synced.
+- **Bug found and fixed while verifying:** the staff badge briefly showed "Offline" while the realtime channel was still joining. Only a real failure now shows Offline; otherwise it says "Connecting" until live.
+- **Next step noted:** The Supabase client adds most of the 157 kB (gzipped) bundle. Loading it with a dynamic `import()` would speed up first load on slow networks.
