@@ -1,0 +1,34 @@
+.page {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  display: grid;
+  gap: var(--space-6);
+}
+
+.card {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  background: var(--color-card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.cardTitle {
+  font-size: var(--text-lg);
+}
+
+.cardText {
+  color: var(--color-muted);
+}
+
+.staffLinks {
+  display: grid;
+  gap: var(--space-3);
+}
+
+@media (min-width: 30rem) {
+  .staffLinks {
+    grid-template-columns: 1fr 1fr;
+  }
+}
