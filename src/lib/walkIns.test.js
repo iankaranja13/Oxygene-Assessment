@@ -35,6 +35,10 @@ describe('createWalkIn', () => {
     expect(walkIn.id).toMatch(/^walk-in-/);
   });
 
+  it('tidies names typed in all lower or upper case, like list data', () => {
+    expect(createWalkIn({ name: 'grace wambui' }, NOW).name).toBe('Grace Wambui');
+  });
+
   it('gives each walk-in a different id', () => {
     expect(createWalkIn({ name: 'A B' }, NOW).id).not.toBe(createWalkIn({ name: 'A B' }, NOW).id);
   });

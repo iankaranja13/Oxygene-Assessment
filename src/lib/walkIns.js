@@ -2,7 +2,7 @@
 // and they then behave like any other guest (searchable, counted, checked in).
 
 import { GUEST_FLAGS, TICKET_TYPES, normalizeGuestRecord } from './normalizeGuests.js';
-import { cleanText, foldForSearch } from './text.js';
+import { cleanText, fixAllCapsOrLowerName, foldForSearch } from './text.js';
 
 export const WALK_IN_NAME_MIN_LENGTH = 2;
 const RANDOM_ID_LENGTH = 6;
@@ -47,7 +47,7 @@ export function createWalkIn(input, now = new Date()) {
     .slice(2, 2 + RANDOM_ID_LENGTH);
   return {
     id: `walk-in-${now.getTime().toString(BASE_36)}-${randomPart}`,
-    name: cleanText(input.name),
+    name: fixAllCapsOrLowerName(cleanText(input.name)),
     organization: cleanText(input.organization),
     ticketType: WALK_IN_TICKET_TYPES.includes(input.ticketType)
       ? input.ticketType
