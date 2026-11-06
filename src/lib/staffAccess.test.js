@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { ROUTES } from './constants.js';
-import { ROUTE_ROLES, STAFF_ROLES, canAccess, roleForPin } from './staffAccess.js';
+import {
+  ROUTE_ROLES,
+  STAFF_ROLES,
+  canAccess,
+  roleForPin,
+  staffRoutesForRole,
+} from './staffAccess.js';
 
 const PINS = { [STAFF_ROLES.USHER]: '1111', [STAFF_ROLES.ORGANIZER]: '9999' };
 
@@ -35,5 +41,13 @@ describe('canAccess', () => {
   it('keeps everyone else out', () => {
     expect(canAccess(null, STAFF_ROLES.USHER)).toBe(false);
     expect(canAccess('attendee', STAFF_ROLES.USHER)).toBe(false);
+  });
+});
+
+describe('staffRoutesForRole', () => {
+  it('gives ushers check-in only, organizers the dashboard and check-in, others nothing', () => {
+    expect(staffRoutesForRole(STAFF_ROLES.USHER)).toEqual([ROUTES.usher]);
+    expect(staffRoutesForRole(STAFF_ROLES.ORGANIZER)).toEqual([ROUTES.organizer, ROUTES.usher]);
+    expect(staffRoutesForRole(null)).toEqual([]);
   });
 });

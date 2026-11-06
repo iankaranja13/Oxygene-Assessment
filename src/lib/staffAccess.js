@@ -65,6 +65,15 @@ export const ROUTE_ROLES = Object.freeze({
   [ROUTES.organizer]: STAFF_ROLES.ORGANIZER,
 });
 
+/**
+ * The staff screens a role may open, in navigation order. Ushers: check-in only.
+ * Organizers: dashboard and check-in (they oversee the door too).
+ * @returns {string[]} route paths
+ */
+export function staffRoutesForRole(role) {
+  return [ROUTES.organizer, ROUTES.usher].filter((route) => canAccess(role, ROUTE_ROLES[route]));
+}
+
 /** @returns {string | null} the role saved earlier in this browser session, if still valid */
 export function readStaffRole() {
   const role = browserSessionStorage.readJson(STAFF_ROLE_KEY, null);
