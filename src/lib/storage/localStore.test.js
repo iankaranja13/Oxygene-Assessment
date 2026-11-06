@@ -75,8 +75,22 @@ describe('createLocalStore', () => {
     });
     expect(store.getState().votes).toEqual({ 'poll-1': [0, 0, 2] });
 
-    await store.setPollState({ activePollId: 'poll-1', isOpen: false });
+    await store.setPollState({ isOpen: false });
+    expect(store.getState().pollState.activePollId).toBe('poll-1');
     expect((await store.castVote('poll-1', 0)).ok).toBe(false);
+  });
+
+  it('merges poll state changes and keeps the voting round', async () => {
+    const { store } = setup();
+    await store.resetAll();
+    const { votingRound } = store.getState().pollState;
+    await store.setPollState({ activePollId: 'poll-2' });
+    await store.setPollState({ isOpen: true });
+    expect(store.getState().pollState).toEqual({
+      activePollId: 'poll-2',
+      isOpen: true,
+      votingRound,
+    });
   });
 
   it('adds walk-ins', async () => {
@@ -91,8 +105,13 @@ describe('createLocalStore', () => {
     await store.setPollState({ activePollId: 'poll-1', isOpen: true });
     await store.castVote('poll-1', 0);
 
+    const roundBefore = store.getState().pollState.votingRound;
     expect(await store.resetAll()).toEqual({ ok: true });
-    expect(store.getState()).toEqual(EMPTY_SHARED_STATE);
+    const { pollState, ...rest } = store.getState();
+    expect(rest).toEqual({ checkIns: {}, walkIns: [], votes: {} });
+    expect(pollState).toMatchObject({ activePollId: null, isOpen: false });
+    // A new voting round means every device's "already voted" flag no longer applies.
+    expect(pollState.votingRound).not.toBe(roundBefore);
     expect(storage.readJson('votes', null)).toEqual({});
   });
 

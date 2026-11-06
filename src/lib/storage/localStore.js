@@ -6,7 +6,7 @@
 //   getState()            -> SharedState (same object until something changes, for React)
 //   subscribe(listener)   -> unsubscribe function; listener runs after every change
 //   setCheckIn(guestId, record), addWalkIn(walkIn), castVote(pollId, optionIndex),
-//   setPollState(pollState), resetAll()
+//   setPollState(changes) (merged into the current poll state), resetAll()
 //                         -> Promise<{ ok: true } | { ok: false, error: string }>
 // Actions are async because a network-backed store has to be.
 
@@ -14,6 +14,7 @@ import { browserLocalStorage } from './safeStorage.js';
 import {
   EMPTY_SHARED_STATE,
   addVote,
+  createVotingRound,
   sanitizeCheckIns,
   sanitizePollState,
   sanitizeVotes,
@@ -103,17 +104,25 @@ export function createLocalStore({ storage = browserLocalStorage } = {}) {
       return updateSlice('votes', (votes) => addVote(votes, pollId, optionIndex));
     },
 
-    async setPollState(pollState) {
-      return updateSlice('pollState', () => sanitizePollState(pollState));
+    /** Merges changes, e.g. { isOpen: false }, so the voting round is never lost. */
+    async setPollState(changes) {
+      return updateSlice('pollState', (pollState) =>
+        sanitizePollState({ ...pollState, ...changes }),
+      );
     },
 
+    /** Clears everything and starts a new voting round, so every device may vote again. */
     async resetAll() {
+      const freshState = {
+        ...EMPTY_SHARED_STATE,
+        pollState: { ...EMPTY_SHARED_STATE.pollState, votingRound: createVotingRound() },
+      };
       let allSaved = true;
       for (const [name, { key }] of Object.entries(SLICES)) {
         // Write empty values (rather than deleting keys) so other tabs see the change.
-        allSaved = storage.writeJson(key, EMPTY_SHARED_STATE[name]) && allSaved;
+        allSaved = storage.writeJson(key, freshState[name]) && allSaved;
       }
-      state = EMPTY_SHARED_STATE;
+      state = freshState;
       notify();
       return allSaved ? OK : { ok: false, error: STORE_ERRORS.NOT_SAVED };
     },

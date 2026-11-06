@@ -143,3 +143,23 @@ Newest entries at the bottom.
 - **Duplicate guard:** If the name matches someone on the list (ignoring case and accents), the form lists those guests and changes the button to "Add anyway".
 - **Storage:** Walk-ins are stored in shared state and pass through the same normalization as list guests when read back, flagged with a "Walk-in" badge.
 - **Rejected:** Letting walk-ins be edited or deleted (scope; Undo un-checks them, and the organizer can reset demo data).
+
+## D20. Choose, then submit (two steps) for poll votes
+
+- **Decision:** Answers are big radio-button cards (64px tall); a separate **Submit vote** button sends the vote, and stays disabled until something is chosen.
+- **Why:** A vote can't be changed afterwards, so an accidental tap while scrolling shouldn't count. Real radio buttons inside a `<fieldset>` whose `<legend>` is the question give screen-reader and arrow-key support for free.
+- **Rejected:** One-tap voting (faster, but irreversible mistakes); allowing vote changes (complicates counting and double-vote rules).
+
+## D21. Double-vote prevention per device, per voting round
+
+- **Decision:** After a successful vote, the device stores `{ "<round>/<pollId>": optionIndex }` in localStorage. The poll screen shows "Thanks, your vote is in · You chose: X" instead of the question while that entry exists. The vote is counted _first_, then remembered, so a failed vote never locks a device out.
+- **Voting rounds:** "Reset demo data" can only clear flags on the organizer's own device, but attendees' phones are out of reach. So the shared poll state carries a `votingRound` id that changes on every reset. Phones remember the round they voted in; a new round means old flags no longer match, on every device.
+- **If storage is blocked:** the vote still counts, and the device is blocked from voting again for as long as the page stays open (in-memory fallback).
+- **Honest limitation:** This stops casual double voting, not a determined person: a private window or cleared browser data allows another vote. Real prevention needs identity (login, or a one-time code per guest) and is out of scope.
+- **Rejected:** Counting by IP address (everyone on venue Wi-Fi shares one); browser fingerprinting (privacy-hostile).
+
+## D22. Poll screen states and rules as a pure function
+
+- **Decision:** `getPollViewState` maps `{ activePoll, isOpen, hasVoted }` to exactly one of: no active poll, open, already voted, closed. "Already voted" wins over "closed", so voters keep their thank-you. An active poll id that doesn't exist (or corrupted state) counts as "no active poll".
+- **Server-side check too:** The store re-checks that the poll is still open when the vote arrives, so a vote submitted just after the organizer closes voting is rejected with "Voting is closed for this poll."
+- **Percentages:** `toPercentages` uses the largest-remainder method, so displayed percentages always total exactly 100 (plain rounding can show 33 + 33 + 33 = 99).
