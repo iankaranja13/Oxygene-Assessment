@@ -6,20 +6,70 @@
 - **Attendees** vote in live polls from their own phones.
 - **Organizers** watch check-ins and poll results update live, and control which poll is open.
 
-**Live demo:** https://oxygene-assessment.vercel.app
-Poll link for attendees: https://oxygene-assessment.vercel.app/poll (QR code: [`docs/poll-qr.png`](docs/poll-qr.png))
-Demo PINs: **usher `2026`** (check-in only) · **organizer `4826`** (dashboard and check-in)
+|                  |                                                                         |
+| ---------------- | ----------------------------------------------------------------------- |
+| **Live demo**    | https://oxygene-assessment.vercel.app                                   |
+| **Code**         | https://github.com/iankaranja13/Oxygene-Assessment                      |
+| **Poll QR code** | [`docs/poll-qr.png`](docs/poll-qr.png) (opens the live site on a phone) |
 
-The live site syncs across devices through **Supabase** (the staff header shows a **Live** badge): a vote on a phone appears on the organizer's screen in about a second.
+The live site syncs across devices through **Supabase**: a vote on a phone appears on the organizer's screen in about a second (staff see a **Live** badge in the header).
 
-## Try it in two minutes
+## How to test
 
-Everyone starts at the same welcome screen, with **one box**: type a staff PIN or a guest's check-in code, and you're taken to that person's screen only.
+### Access codes
 
-1. **Organizer** (laptop): open the site, type `4826`. Optionally write a question under **Create a poll**; under **Poll controls** pick a question, then **Open voting**.
-2. **Attendee** (phone): scan the QR code or open the site, type a guest's check-in code (e.g. `1049`), and vote. Watch the bar move on the laptop. The same code on a second phone is told it already voted.
-3. **Usher** (phone): open the site, type `2026`. Search `grace`, tap **Check in**, then **Undo**. Switch to **Enter code** and try `1049`, `1252` (a shared code) and `9999` (not found). **Lock** signs out and returns to the welcome screen.
-4. Back on the dashboard, the check-in count has moved. **Reset demo data** clears activity for the next run.
+Everyone opens the **same link** and sees one box: **"Check-in code or staff PIN"**. What you type decides who you are and which screens you get.
+
+| Role          | Type this                                                         | You get                                                                               |
+| ------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| **Organizer** | `4826`                                                            | Dashboard: create polls, choose/open/close polls, live results, reset. Also Check-in. |
+| **Usher**     | `2026`                                                            | Guest check-in only                                                                   |
+| **Attendee**  | A guest's check-in code: `1049`, `1105`, `1133`, `1336` or `1658` | The live poll only (one vote per code)                                                |
+
+Codes work with or without the `OXY-` prefix. Each attendee code can vote once per poll, so use a **different code on each phone**. Opening another role's screen directly (e.g. `/organizer` as an usher) asks for that role's PIN. **Lock** / **Sign out** returns to the welcome screen.
+
+### End-to-end walkthrough (about 5 minutes)
+
+Use a laptop for the organizer and one or two phones (or private browser windows) for the others.
+
+**1. Organizer sets up a poll (laptop)**
+
+1. Open the live link, type `4826`, press **Continue**. You land on the **Dashboard** (tabs: Dashboard, Check-in).
+2. Optional: under **Create a poll**, write a question and 2 to 6 answers, then **Create poll**. It appears under **Poll controls** marked "created here".
+3. Under **Poll controls**, pick a question. Phones now show it, with voting still closed.
+4. Press **Open voting**. The badge changes to "Voting open".
+
+**2. Attendee votes (phone)**
+
+1. Open the link (or scan the QR code), type `1049`, press **Continue**. You land on the **live poll** with the organizer's question; there are no staff tabs.
+2. Tap an answer, then **Submit vote**. You see "Thanks, your vote is in · You chose: …".
+3. On the laptop, the result bar updates within about a second.
+4. Try `1049` on a second phone or private window: it says the code has already voted, and the count doesn't change.
+5. Try `9999`: "That doesn't match a check-in code or staff PIN."
+
+**3. Usher checks guests in (phone)**
+
+1. Open the link, type `2026`. You land on **Guest check-in** (no other screens).
+2. Search `grace`: two different Grace Wambuis appear, labelled "Same name as another guest". Tap **Check in** on one, then **Undo** in the message.
+3. Tap **Enter code** and try these:
+
+   | Code           | Expected result                                                                           |
+   | -------------- | ----------------------------------------------------------------------------------------- |
+   | `1336`         | Checked in: Tendai Dlamini                                                                |
+   | `1336` (again) | "Already checked in" with the time                                                        |
+   | `1252`         | Shared by two guests: both are listed and you choose (nobody is checked in automatically) |
+   | `1455`         | Already checked in on the original list, with the time                                    |
+   | `9999`         | No guest has that code                                                                    |
+
+4. Search for a name not on the list (e.g. `Zed Example`), tap **Not on the list? Add a walk-in**, and add them.
+5. Open `/organizer` in the address bar: you're asked for the organizer PIN, and `2026` is refused.
+6. Tap **Lock**: back to the welcome screen.
+
+**4. Organizer wraps up (laptop)**
+
+1. The **Check-ins** count has moved (3 of 146 are checked in on the original list).
+2. **Guest list notes** shows what the data clean-up found (152 rows became 146 guests).
+3. **Close voting**, then **Reset demo data** to clear check-ins, walk-ins and votes for the next tester. Polls you created are kept.
 
 ## Run it locally
 
