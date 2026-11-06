@@ -14,10 +14,12 @@ The live site syncs across devices through **Supabase** (the staff header shows 
 
 ## Try it in two minutes
 
-1. Open `/organizer` on a laptop (organizer PIN `4826`). Optionally write your own question under **Create a poll**. Under **Poll controls** pick a question, then **Open voting**.
-2. Scan the QR code (or open `/poll`) on a phone, enter a guest's check-in code (e.g. `1049`), and vote. Watch the bar move on the laptop. Try the same code on a second phone: it's told that code already voted.
-3. Open `/usher` (usher PIN `2026`). Search `grace`, tap **Check in**, then **Undo**. Switch to **Enter code** and try `1049`, `1252` (a shared code) and `9999` (not found).
-4. Back on the dashboard, the check-in count has moved. **Reset demo data** clears everything for the next run.
+Everyone starts at the same welcome screen, with **one box**: type a staff PIN or a guest's check-in code, and you're taken to that person's screen only.
+
+1. **Organizer** (laptop): open the site, type `4826`. Optionally write a question under **Create a poll**; under **Poll controls** pick a question, then **Open voting**.
+2. **Attendee** (phone): scan the QR code or open the site, type a guest's check-in code (e.g. `1049`), and vote. Watch the bar move on the laptop. The same code on a second phone is told it already voted.
+3. **Usher** (phone): open the site, type `2026`. Search `grace`, tap **Check in**, then **Undo**. Switch to **Enter code** and try `1049`, `1252` (a shared code) and `9999` (not found). **Lock** signs out and returns to the welcome screen.
+4. Back on the dashboard, the check-in count has moved. **Reset demo data** clears activity for the next run.
 
 ## Run it locally
 
@@ -55,13 +57,13 @@ Only these public values are copied into the browser bundle (an explicit allowli
 
 ## Who can see what
 
-| Role      | How they get in                                  | Can open                                         | Downloads guest list? |
-| --------- | ------------------------------------------------ | ------------------------------------------------ | --------------------- |
-| Attendee  | QR code to `/poll`, then their own check-in code | Poll (and the home page)                         | No                    |
-| Usher     | Usher PIN                                        | Check-in, Poll                                   | Yes, after unlocking  |
-| Organizer | Organizer PIN                                    | Dashboard (poll controls, reset), Check-in, Poll | Yes, after unlocking  |
+| Role      | How they get in                                               | Can open                                                    | Downloads guest list? |
+| --------- | ------------------------------------------------------------- | ----------------------------------------------------------- | --------------------- |
+| Attendee  | Their check-in code on the welcome screen (or `/poll` via QR) | Poll (and the home page)                                    | No                    |
+| Usher     | Usher PIN on the welcome screen                               | Check-in only (no nav)                                      | Yes, after unlocking  |
+| Organizer | Organizer PIN on the welcome screen                           | Dashboard (create polls, poll controls, reset) and Check-in | Yes, after unlocking  |
 
-The bottom navigation only shows the screens a role may open. An usher who opens `/organizer` is told it needs the organizer PIN. See DECISIONS D27 for what this does and doesn't protect.
+The welcome screen decides the role from what's typed (staff PINs are checked first; a test guarantees no guest code equals a PIN). Ushers get only check-in; organizers get a two-tab nav (Dashboard, Check-in); attendees get only the poll. Opening another role's address directly asks for that role's PIN. **Lock** / **Sign out** returns to the welcome screen. See DECISIONS D27 for what this does and doesn't protect.
 
 ## Live sync with Supabase
 

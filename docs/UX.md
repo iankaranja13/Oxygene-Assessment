@@ -16,9 +16,10 @@ Flows, screen states, and the design decisions behind them. Brand values come fr
 
 ```mermaid
 flowchart TD
-    A([Open /usher]) --> B{Unlocked on this device?}
-    B -- No --> C[Enter usher or organizer PIN] --> D
-    B -- Yes --> D[Check-in screen<br/>search box focused]
+    A([Open the site]) --> W[Welcome: one box<br/>check-in code or staff PIN]
+    W -- usher PIN --> D[Check-in screen<br/>search box focused]
+    W -- organizer PIN --> O([Dashboard])
+    W -- guest code --> P([Live poll])
     D --> E{Find guest or Enter code?}
 
     E -- Find guest --> F[Type name / org / code]
@@ -107,20 +108,21 @@ flowchart LR
 
 ## Design decisions (and what I decided against)
 
-| Decision                                                | Decided against                      | Why                                                                                 |
-| ------------------------------------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------- |
-| Large search box pinned to the top, focused on open     | A filter panel or a table            | One field covers name, organization and code; tables are cramped at 360px           |
-| Feedback shown under the input, no timeout              | Toasts at the bottom that disappear  | Bottom toasts hide behind the phone keyboard; disappearing Undo is a trap           |
-| Undo instead of "Are you sure?"                         | Confirmation dialogs before check-in | Confirmations slow a busy door; Undo is faster and just as safe                     |
-| Separate "Enter code" mode                              | Only search                          | Scanner-style "type, then go" is one action shorter and maps to a future QR scanner |
-| Show shared codes / same names as warnings, ask a human | Auto-merging similar records         | Two Grace Wambuis at different companies are different people                       |
-| Choose, then submit for votes                           | One-tap voting                       | Votes can't be changed, so a stray tap shouldn't count                              |
-| No navigation on the attendee poll screen               | Always-visible navigation            | Attendees should see one thing; nav would invite them into staff screens            |
-| Picking a poll keeps voting closed                      | Opening voting automatically         | Going live should be a deliberate act                                               |
-| Single-hue result bars with numbers written beside them | Multi-colour pie or donut charts     | Bars compare more accurately; numbers make the chart readable without colour        |
-| Status as text + icon + coloured edge                   | Colour-only status dots              | WCAG: colour must never be the only signal                                          |
-| Bottom navigation for staff                             | Hamburger menu                       | Three destinations fit in a thumb-reachable bar; menus hide them                    |
-| System fonts as a fallback while brand fonts load       | Blocking until fonts load            | Text must appear immediately on slow venue Wi-Fi                                    |
+| Decision                                                      | Decided against                                         | Why                                                                                 |
+| ------------------------------------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| One welcome box for everyone; what you type decides your role | Separate buttons per role, each with its own PIN screen | One obvious action on arrival; nobody has to work out which door is theirs          |
+| Large search box pinned to the top, focused on open           | A filter panel or a table                               | One field covers name, organization and code; tables are cramped at 360px           |
+| Feedback shown under the input, no timeout                    | Toasts at the bottom that disappear                     | Bottom toasts hide behind the phone keyboard; disappearing Undo is a trap           |
+| Undo instead of "Are you sure?"                               | Confirmation dialogs before check-in                    | Confirmations slow a busy door; Undo is faster and just as safe                     |
+| Separate "Enter code" mode                                    | Only search                                             | Scanner-style "type, then go" is one action shorter and maps to a future QR scanner |
+| Show shared codes / same names as warnings, ask a human       | Auto-merging similar records                            | Two Grace Wambuis at different companies are different people                       |
+| Choose, then submit for votes                                 | One-tap voting                                          | Votes can't be changed, so a stray tap shouldn't count                              |
+| No navigation on the attendee poll screen                     | Always-visible navigation                               | Attendees should see one thing; nav would invite them into staff screens            |
+| Picking a poll keeps voting closed                            | Opening voting automatically                            | Going live should be a deliberate act                                               |
+| Single-hue result bars with numbers written beside them       | Multi-colour pie or donut charts                        | Bars compare more accurately; numbers make the chart readable without colour        |
+| Status as text + icon + coloured edge                         | Colour-only status dots                                 | WCAG: colour must never be the only signal                                          |
+| Bottom navigation for staff                                   | Hamburger menu                                          | Three destinations fit in a thumb-reachable bar; menus hide them                    |
+| System fonts as a fallback while brand fonts load             | Blocking until fonts load                               | Text must appear immediately on slow venue Wi-Fi                                    |
 
 ## Accessibility summary
 
