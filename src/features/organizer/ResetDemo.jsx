@@ -1,5 +1,5 @@
 // "Reset demo data": clears check-ins, walk-ins, votes and poll state for everyone, and
-// starts a new voting round so every phone may vote again. Asks for confirmation first,
+// starts a new voting round so every guest may vote again. Created polls are kept. Asks for confirmation first,
 // because it can't be undone.
 import { useState } from 'react';
 import { Button } from '../../components/Button.jsx';
@@ -17,7 +17,8 @@ export default function ResetDemo({ onReset, isSaving }) {
   return (
     <Panel title="Demo data">
       <p className={styles.text}>
-        Start fresh: clears every check-in, walk-in and vote, and lets every phone vote again.
+        Start fresh: clears every check-in, walk-in and vote, and lets every guest vote again. Polls
+        you created are kept.
       </p>
       {isConfirming ? (
         <div className={styles.confirm} role="alertdialog" aria-label="Confirm reset">

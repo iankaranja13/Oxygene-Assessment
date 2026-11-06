@@ -9,6 +9,7 @@ import { usePolls } from '../../hooks/usePolls.js';
 import { appStore } from '../../lib/storage/appStore.js';
 import { clearDeviceVotes } from '../../lib/storage/deviceFlags.js';
 import CheckInSummary from './CheckInSummary.jsx';
+import CreatePollForm from './CreatePollForm.jsx';
 import DataNotes from './DataNotes.jsx';
 import styles from './OrganizerPage.module.css';
 import PollControls from './PollControls.jsx';
@@ -24,7 +25,10 @@ export default function OrganizerPage() {
   const [message, setMessage] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  /** Runs a store action, then reports success or the store's error. */
+  /**
+   * Runs a store action, then reports success or the store's error.
+   * @returns {Promise<boolean>} whether it succeeded (forms use this to clear themselves)
+   */
   async function runAction(action, successMessage) {
     setIsSaving(true);
     try {
@@ -34,6 +38,7 @@ export default function OrganizerPage() {
           ? { tone: 'success', text: successMessage }
           : { tone: 'error', text: result.error },
       );
+      return result.ok;
     } finally {
       setIsSaving(false);
     }
@@ -67,6 +72,18 @@ export default function OrganizerPage() {
             isSaving={isSaving}
             onChange={(changes) =>
               runAction(() => appStore.setPollState(changes), describePollChange(changes))
+            }
+            onDelete={(pollId) => runAction(() => appStore.deletePoll(pollId), 'Poll deleted.')}
+          />
+        </div>
+        <div className={styles.create}>
+          <CreatePollForm
+            isSaving={isSaving}
+            onCreate={(poll) =>
+              runAction(
+                () => appStore.createPoll(poll),
+                'Poll created. Choose it under Poll controls to show it on phones.',
+              )
             }
           />
         </div>

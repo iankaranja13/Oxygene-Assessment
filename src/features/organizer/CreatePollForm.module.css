@@ -1,0 +1,77 @@
+.form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.fieldset {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.label {
+  padding: 0;
+  font-weight: var(--weight-semibold);
+}
+
+.input {
+  width: 100%;
+  min-height: var(--touch-target);
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-card);
+  font-size: var(--text-base);
+}
+
+.input:focus-visible {
+  border-color: var(--color-primary);
+}
+
+.inputInvalid,
+.inputInvalid:focus-visible {
+  border-color: var(--color-error);
+}
+
+.optionRow {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.removeButton {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  border: 2px solid var(--color-border);
+  border-radius: 50%;
+  background: var(--color-card);
+  color: var(--color-muted);
+}
+
+.removeButton:hover {
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
+
+.addButton {
+  justify-self: start;
+}
+
+.error {
+  color: var(--color-error);
+  font-weight: var(--weight-medium);
+}
+
+.hint {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
