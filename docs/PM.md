@@ -52,7 +52,8 @@ _As a guest, I want to answer the poll on my phone during the presentation, so t
 
 - The active question shows with large, tappable answers; I choose, then submit.
 - After voting I see "Thanks, your vote is in" and what I chose, also after a reload.
-- I can't vote twice on the same device.
+- I enter my check-in code once; a code that isn't a guest's is refused with a clear message.
+- My code can vote once per poll, from any phone; a second attempt shows that it already voted.
 - If no poll is open I see a waiting screen that updates by itself; if voting closed I'm told so.
 
 ### US6. Run the polls (organizer)
@@ -62,6 +63,14 @@ _As the events manager, I want to choose the active poll and open or close votin
 - I can pick which poll phones show, or show the waiting screen.
 - Picking a poll never opens voting by itself; Open and Close are separate, deliberate actions.
 - Phones update within a few seconds without a refresh.
+
+### US6b. Create a poll (organizer / presenter)
+
+_As the presenter, I want to write my own poll questions on the dashboard, so that I'm not limited to the prepared ones._
+
+- I can enter a question and 2 to 6 answers; blank, duplicate or over-long answers are explained.
+- The new poll appears in Poll controls on every organizer screen straight away.
+- I can delete a poll I created if it has no votes and isn't on screen.
 
 ### US7. See live results and arrivals (organizer)
 
