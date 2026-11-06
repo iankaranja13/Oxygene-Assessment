@@ -1,0 +1,58 @@
+.page {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.header {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.title {
+  font-size: var(--text-2xl);
+}
+
+.grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-areas:
+    'checkins'
+    'controls'
+    'results'
+    'notes'
+    'reset';
+}
+
+.checkins {
+  grid-area: checkins;
+}
+.controls {
+  grid-area: controls;
+}
+.results {
+  grid-area: results;
+}
+.notes {
+  grid-area: notes;
+}
+.reset {
+  grid-area: reset;
+}
+
+/* Big screens: results take the wide right column, the rest stack on the left. */
+@media (min-width: 64rem) {
+  .grid {
+    grid-template-columns: minmax(20rem, 1fr) 2fr;
+    grid-template-areas:
+      'checkins results'
+      'controls results'
+      'notes    results'
+      'reset    results';
+    align-items: start;
+  }
+
+  .results {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-4));
+  }
+}
