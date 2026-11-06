@@ -25,8 +25,10 @@ export default function PollQuestion({ poll, onSubmit, isSubmitting, error }) {
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
       <fieldset className={styles.fieldset}>
-        {/* The legend names the radio group, so screen readers read the question first. */}
-        <legend className={styles.question}>{poll.question}</legend>
+        {/* The legend names the radio group; the h1 inside makes it the page heading too. */}
+        <legend className={styles.legend}>
+          <h1 className={styles.question}>{poll.question}</h1>
+        </legend>
         <p className={styles.instruction}>Choose one answer, then submit.</p>
         <div className={styles.options}>
           {poll.options.map((option, index) => (
