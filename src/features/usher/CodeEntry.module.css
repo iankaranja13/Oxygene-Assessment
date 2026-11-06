@@ -1,0 +1,40 @@
+.form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-2);
+  align-items: end;
+}
+
+.label {
+  grid-column: 1 / -1;
+  font-weight: var(--weight-semibold);
+}
+
+.hint {
+  grid-column: 1 / -1;
+  margin-top: calc(-1 * var(--space-1));
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
+.input {
+  width: 100%;
+  min-height: 56px;
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-card);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--text-xl);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: var(--shadow-card);
+}
+
+.input:focus-visible {
+  border-color: var(--color-primary);
+}
+
+.submit {
+  min-height: 56px;
+}
