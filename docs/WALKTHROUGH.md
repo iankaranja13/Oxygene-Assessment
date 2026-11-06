@@ -8,7 +8,7 @@ A guided tour of the code, written so every part can be explained to a judge. De
 
 **What it is:** LaunchPad is a mobile-first web app for Oxygene's product launch (about 200 guests).
 
-**Live:** https://oxygene-assessment.vercel.app (demo PINs: usher `2026`, organizer `4826`)
+**Live:** https://oxygene-assessment.vercel.app (everyone starts at one welcome box: usher PIN `2026`, organizer PIN `4826`, or a guest's check-in code)
 
 **Three screens:**
 
@@ -237,11 +237,12 @@ flowchart TD
 - **`ResetDemo`:** Inline "Reset everything? This can't be undone." On confirm it clears this device's vote flags and calls `appStore.resetAll()`, which clears check-ins, walk-ins, votes and who-voted records, resets poll state and starts a new voting round. Polls the organizer created are kept.
 - **`DataNotes`:** Shows the normalization report: 152 rows became 146 guests, 3 duplicates merged, 3 rows skipped, 1 shared code, 2 shared names (D23).
 
-### 4.7 Roles and PINs
+### 4.7 Welcome screen, roles and PINs
 
-- **Three roles.** Attendees need no PIN and only use `/poll`. Ushers (PIN `2026`) can open check-in. Organizers (PIN `4826`) can open everything, including the dashboard with poll controls and reset.
-- **How it's decided.** `roleForPin` turns a typed PIN into a role. `ROUTE_ROLES` says which role each staff route needs. `canAccess(role, requiredRole)` compares ranks (organizer is above usher). `PinGate` uses these: allowed means show the screen; a valid but insufficient PIN gets a specific message ("That's the usher PIN. This screen needs the organizer PIN."). The role is kept in sessionStorage until the tab closes or **Lock** is tapped.
-- **Navigation per role.** `BottomNav` filters its items with the same `canAccess` rule, so ushers see Check-in and Poll, organizers also see Dashboard, attendees see no nav.
+- **One way in.** `/` shows `HomePage`, which renders `SignInForm`: one box labelled "Check-in code or staff PIN". `identifySignIn` (in `lib/signIn.js`) decides: organizer PIN (`4826`) → organizer; usher PIN (`2026`) → usher; anything else is normalized as a guest code and verified by `appStore.verifyAttendeeCode`. Staff go to their screen (`HOME_ROUTE_FOR_ROLE`); guests go to `/poll`. A test checks that no real guest code equals a staff PIN, so a guest can't be mistaken for staff.
+- **One role per device.** Signing in as staff forgets any guest code; signing in as a guest locks the staff role. Returning visitors see "Welcome back" with a button to their screen and **Sign out**. **Lock** signs staff out and returns to `/`.
+- **What each role can open.** `ROUTE_ROLES` says which role each staff route needs; `canAccess(role, requiredRole)` ranks organizer above usher; `staffRoutesForRole` lists the screens a role may open. Ushers: check-in only, so no nav is shown. Organizers: Dashboard and Check-in in the bottom nav. Attendees: the poll, no nav. Opening another role's address directly shows `PinGate`, which asks for the right PIN ("That's the usher PIN. This screen needs the organizer PIN.").
+- **The same box on `/poll`.** Attendees who arrive by QR code see `SignInForm` there; a staff PIN typed there also works and takes staff to their screen.
 - **Guest data stays with staff.** `App.jsx` lazy-loads `UsherPage` and `OrganizerPage`. Only they import the guest list, so it lands in its own file that downloads after a staff screen is unlocked. Checked by searching the built files: the main file attendees download contains no guest names or codes.
 - **Honest limitation.** This is a **deterrent, not security**: both PINs are in the main JavaScript file, and the staff files are publicly reachable by URL for someone who goes looking. Real protection needs server-side logins and database rules per role (D8, D27).
 

@@ -1,19 +1,20 @@
 // Attendee poll screen.
 //   1. Enter your check-in code (once per phone; verified by the store/database).
+//      Staff who land here can type their PIN in the same box and are sent to their screen.
 //   2. Then exactly one of: no poll yet, the open question, "you've voted", "voting closed".
 // It updates by itself when the organizer changes the poll: no refresh needed.
 import { useState } from 'react';
 import EmptyState from '../../components/EmptyState.jsx';
 import { PollIcon } from '../../components/icons.jsx';
+import SignInForm from '../../components/SignInForm.jsx';
+import { useAttendeeCode } from '../../hooks/useAttendeeCode.js';
 import { useConnectionStatus } from '../../hooks/useConnectionStatus.js';
 import { usePageTitle } from '../../hooks/usePageTitle.js';
 import { usePolls } from '../../hooks/usePolls.js';
 import { CONNECTION_STATUS, STORE_ERRORS } from '../../lib/storage/localStore.js';
 import { POLL_VIEW_STATES, getPollViewState } from '../../lib/votes.js';
-import AttendeeCodeForm from './AttendeeCodeForm.jsx';
 import styles from './PollPage.module.css';
 import PollQuestion from './PollQuestion.jsx';
-import { useAttendeeCode } from './useAttendeeCode.js';
 import { usePollVote } from './usePollVote.js';
 import VoteConfirmation from './VoteConfirmation.jsx';
 
@@ -63,9 +64,12 @@ export default function PollPage() {
     }
     if (!attendee.code) {
       return (
-        <AttendeeCodeForm
+        // Same box as the welcome page: a staff PIN typed here takes staff to their screen.
+        <SignInForm
+          title="Join the live poll"
+          intro="Enter the check-in code on your ticket so you can vote. One vote per guest."
           notice={codeNotice}
-          onVerified={(code) => {
+          onGuestSignedIn={(code) => {
             setCodeNotice(null);
             attendee.remember(code);
           }}

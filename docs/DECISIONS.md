@@ -248,3 +248,22 @@ Newest entries at the bottom.
   - Walk-ins have no code, so they can't vote.
   - The PINs are still a deterrent only (D27).
 - **Rejected:** A shared room code (simpler, but one vote per phone only); sending the guest list to phones to check codes locally (leaks every code); storing the voter code in `votes` (that table is public and broadcast).
+
+## D29. One welcome box decides the role
+
+- **Problem:** The home page had three buttons (poll, check-in, dashboard), each leading to its own PIN screen, and staff navigation included a Poll tab that, for staff, opened the attendee code form. It felt like buttons led nowhere.
+- **Decision:**
+  - `/` is a single welcome form: "Check-in code or staff PIN". `identifySignIn` checks the organizer PIN, then the usher PIN, then treats the input as a guest code (verified by the store).
+  - Each person lands on their own screen: usher → check-in, organizer → dashboard, guest → poll.
+  - Signing in as one role signs out the other on that device.
+  - Returning visitors get "Welcome back" with a continue button and **Sign out**; **Lock** returns to `/`.
+- **Each role sees only its own functionality:**
+  - Ushers: check-in only (no nav).
+  - Organizers: Dashboard and Check-in.
+  - Attendees: poll only.
+  - Direct URLs to another role's screen still ask for that role's PIN.
+- **Safety:** A unit test confirms no guest code in the data equals a staff PIN (staff PINs are checked first, so a collision would sign a guest in as staff). The box masks input by default, with a Show toggle so guests can check their code.
+- **Verified:**
+  - A 24-step browser run on the real database, all passing: welcome on open; usher PIN → check-in with search, check-in, undo and code entry; usher refused at the dashboard; Lock → welcome; organizer PIN → dashboard with two tabs, creates and opens a poll, uses check-in; a bad code is refused; a guest code → poll, sees the organizer's poll and votes, and the organizer sees it live; guest refused at check-in; usher PIN typed on `/poll` → check-in.
+  - An audit clicking every button on every screen found none that do nothing apart from links to the current page and the intentionally disabled Submit vote.
+- **Rejected:** Keeping role buttons on the home page (more choices, more dead ends); a Poll tab for staff (staff don't have a guest code; results are on the dashboard).
