@@ -26,6 +26,7 @@ export const GUEST_FLAGS = Object.freeze({
   UNKNOWN_TICKET_TYPE: 'unknown-ticket-type',
   SHARED_CODE: 'shared-code',
   SAME_NAME: 'same-name',
+  WALK_IN: 'walk-in',
 });
 
 export const SKIP_REASONS = Object.freeze({
