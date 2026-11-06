@@ -1,0 +1,11 @@
+/* A narrow, centred column: comfortable on phones, and doesn't sprawl on tablets. */
+.page {
+  max-width: 32rem;
+  margin: 0 auto;
+  padding-top: var(--space-2);
+}
+
+.closedQuestion {
+  font-weight: var(--weight-semibold);
+  color: var(--color-ink);
+}
