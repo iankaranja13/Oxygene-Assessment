@@ -1,0 +1,19 @@
+.panel {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-6) var(--space-4);
+  background: var(--color-card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  align-content: start;
+}
+
+@media (min-width: 48rem) {
+  .panel {
+    padding: var(--space-6);
+  }
+}
+
+.title {
+  font-size: var(--text-lg);
+}
