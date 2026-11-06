@@ -172,3 +172,15 @@ Newest entries at the bottom.
 - **Reset:** Inline confirmation ("Reset everything? This can't be undone."). It clears check-ins, walk-ins, votes and poll state, starts a new voting round (see D21), and clears this device's own vote flags.
 - **Data notes:** Shows what normalization did (rows in, guests out, duplicates merged, rows skipped, shared codes, shared names), so the organizer can explain why 152 rows became 146 guests.
 - **Rejected:** A charting library (overkill for a few bars); a modal confirmation dialog (focus-trap complexity for no benefit over an inline confirm).
+
+## D24. Live sync: storage events across tabs, Supabase across devices
+
+- **Same browser (always on):** `localStore` listens for the browser's `storage` event, which fires in every _other_ tab when localStorage changes, re-reads its copy and re-renders. It only listens while something on screen is subscribed.
+- **Across devices (when configured):** `supabaseStore` has the same methods as `localStore`. It loads a snapshot of four tables (`check_ins`, `walk_ins`, `poll_state`, `votes`), subscribes to Supabase Realtime, and re-fetches a table whenever one of its rows changes. If Realtime drops, a 15-second safety-net poll keeps data fresh; going back online triggers a full refresh.
+- **Choosing a store:** `appStore.js` uses Supabase if a URL and public key were present at build time, otherwise localStorage. So the app still runs (as a single-browser demo) with no backend at all.
+- **Writes are optimistic:** The screen updates instantly, then rolls back with "Couldn't reach the server, so this wasn't saved" if the write fails. Nothing fails silently.
+- **Rules enforced in the database:** `cast_vote` checks that the poll is active and open and inserts the vote in one statement, so a vote can't sneak in after the organizer closes voting. `reset_demo` clears everything and sets a new voting round in one transaction. Votes are one row each and can only be added through `cast_vote`.
+- **Env vars:** The Vercel/Supabase integration names variables for Next.js (`NEXT_PUBLIC_*`). `vite.config.js` copies exactly two _public_ values (URL and anon/publishable key) into the build, an explicit allowlist so secret keys can never reach the browser.
+- **Connection status:** Staff see a header badge (Live / This browser only / Connecting / Offline). Everyone sees a banner when connecting or offline, and the poll screen says "Loading the live poll" instead of briefly flashing "No poll right now".
+- **Honest security limitation:** With no real login, the tables are writable by anyone holding the public key (which ships in the page). Acceptable for a one-evening demo; production would add Supabase Auth for staff and move check-in writes behind staff-only policies.
+- **Rejected:** BroadcastChannel (the `storage` event already covers tabs with no extra code); Firebase (equivalent, but Postgres tables are easier to inspect and explain); a custom WebSocket server (more to build, host and explain); computing vote totals in the database with a view (not needed at a few hundred rows).

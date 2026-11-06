@@ -6,9 +6,16 @@ import { createMemoryBackend, createThrowingBackend } from './testBackends.js';
 
 const CHECKED_IN = { checkedIn: true, at: '2026-11-20T15:00:00.000Z' };
 
-function setup(backend = createMemoryBackend()) {
+function setup(backend = createMemoryBackend(), eventTarget = null) {
   const storage = createSafeStorage(() => backend);
-  return { backend, storage, store: createLocalStore({ storage }) };
+  return { backend, storage, store: createLocalStore({ storage, eventTarget }) };
+}
+
+/** Simulates the "storage" event the browser fires in other tabs. */
+function storageEvent(key) {
+  const event = new Event('storage');
+  event.key = key;
+  return event;
 }
 
 describe('createLocalStore', () => {
@@ -139,5 +146,35 @@ describe('createLocalStore', () => {
     // A second change must build on the first, not on the unreadable storage.
     await store.setCheckIn('G2', CHECKED_IN);
     expect(Object.keys(store.getState().checkIns)).toEqual(['G1', 'G2']);
+  });
+
+  it('picks up changes made in another tab', async () => {
+    const backend = createMemoryBackend();
+    const events = new EventTarget();
+    const { store: thisTab } = setup(backend, events);
+    const { store: otherTab } = setup(backend);
+    const listener = vi.fn();
+    thisTab.subscribe(listener);
+
+    await otherTab.setCheckIn('G1', CHECKED_IN);
+    expect(thisTab.getState().checkIns).toEqual({});
+
+    events.dispatchEvent(storageEvent('launchpad:v1:check-ins'));
+    expect(thisTab.getState().checkIns).toEqual({ G1: CHECKED_IN });
+    expect(listener).toHaveBeenCalledTimes(1);
+  });
+
+  it('ignores storage events for unrelated keys and stops listening when unsubscribed', () => {
+    const events = new EventTarget();
+    const { store } = setup(createMemoryBackend(), events);
+    const listener = vi.fn();
+    const unsubscribe = store.subscribe(listener);
+
+    events.dispatchEvent(storageEvent('some-other-app:key'));
+    expect(listener).not.toHaveBeenCalled();
+
+    unsubscribe();
+    events.dispatchEvent(storageEvent('launchpad:v1:votes'));
+    expect(listener).not.toHaveBeenCalled();
   });
 });

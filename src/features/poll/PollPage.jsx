@@ -3,8 +3,10 @@
 // It updates by itself when the organizer changes the poll: no refresh needed.
 import EmptyState from '../../components/EmptyState.jsx';
 import { PollIcon } from '../../components/icons.jsx';
+import { useConnectionStatus } from '../../hooks/useConnectionStatus.js';
 import { usePageTitle } from '../../hooks/usePageTitle.js';
 import { usePolls } from '../../hooks/usePolls.js';
+import { CONNECTION_STATUS } from '../../lib/storage/localStore.js';
 import { POLL_VIEW_STATES, getPollViewState } from '../../lib/votes.js';
 import PollQuestion from './PollQuestion.jsx';
 import styles from './PollPage.module.css';
@@ -14,6 +16,7 @@ import VoteConfirmation from './VoteConfirmation.jsx';
 export default function PollPage() {
   usePageTitle('Live poll');
   const { activePoll, pollState } = usePolls();
+  const connectionStatus = useConnectionStatus();
   const vote = usePollVote(activePoll, pollState.votingRound);
   const viewState = getPollViewState({
     activePoll,
@@ -24,6 +27,15 @@ export default function PollPage() {
   return <div className={styles.page}>{renderView()}</div>;
 
   function renderView() {
+    // Until the first snapshot arrives we don't know if a poll is open: say so, rather
+    // than flashing "No poll right now".
+    if (connectionStatus === CONNECTION_STATUS.CONNECTING) {
+      return (
+        <EmptyState icon={PollIcon} title="Loading the live poll" headingLevel={1}>
+          One moment&hellip;
+        </EmptyState>
+      );
+    }
     switch (viewState) {
       case POLL_VIEW_STATES.NO_ACTIVE_POLL:
         return (
