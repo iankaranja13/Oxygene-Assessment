@@ -17,3 +17,29 @@ Newest entries at the bottom.
 - **Why:** Unblocks the build. The guest file deliberately contains the kinds of problems real exports have (missing fields, inconsistent codes, duplicates, junk rows), so the normalization layer is tested against realistic mess.
 - **How to swap:** Replace the files with the real ones. The normalization layer is designed to accept the real data without code changes; if the real field names differ, only the field-alias map in `src/lib/normalizeGuests.js` changes.
 - **Rejected:** Waiting for the real files (blocks all work); a clean, tidy sample (would hide the data-handling work the judges are assessing).
+
+## D3. JavaScript with JSDoc, not TypeScript
+
+- **Decision:** Plain JavaScript. Functions in `src/lib` document their inputs and outputs with JSDoc comments.
+- **Why:** Less syntax to explain to a judge, and a faster build loop. The real risk in this app is bad _data at runtime_, which TypeScript cannot catch; the normalization layer validates that explicitly.
+- **Rejected:** TypeScript (worth it on a larger, longer-lived codebase or a team).
+
+## D4. ESLint + Prettier, not the Vite template's oxlint
+
+- **Decision:** The current Vite React template ships oxlint. Replaced with ESLint (JS recommended, react-hooks, react-refresh) and Prettier, with `eslint-config-prettier` so the two never conflict.
+- **Why:** The brief asks for ESLint and Prettier; ESLint's react-hooks rules are the standard, well-known check for hook mistakes.
+- **Rejected:** oxlint (faster, but less familiar and not what the brief specifies).
+
+## D5. Supabase for cross-device live sync (scope change, approved)
+
+- **Decision:** Add a Supabase-backed store so votes and check-ins sync across _devices_ in real time. localStorage remains the fallback when Supabase isn't configured, and still syncs across tabs of one browser.
+- **Why:** The judged demo is on real phones. With localStorage only, a vote cast on a judge's phone would never appear on the organizer screen.
+- **How:** The UI talks to a small store interface (domain actions such as `checkIn`, `castVote`, `setActivePoll`, plus `subscribe`). Two implementations: `localStore` and `supabaseStore`. Which one is used is decided once at startup from environment variables.
+- **Trade-off:** Adds one runtime dependency (`@supabase/supabase-js`) and an external service. Without real authentication, the database tables must be writable by anyone holding the public key; acceptable for a one-evening event demo, documented as a limitation.
+- **Rejected:** localStorage only (fails the multi-device demo); Firebase (equivalent, but Supabase's Postgres tables are easier to inspect and explain); a custom Node + WebSocket server (more code to build, host and explain).
+
+## D6. "Reset demo data" button on the organizer screen
+
+- **Decision:** One button, behind a confirmation, clears check-ins, walk-ins, votes, poll state and this device's "already voted" flags.
+- **Why:** The double-vote guard is per device, so a demo on a single browser could otherwise only vote once per poll. It also gives a clean slate before the real event.
+- **Rejected:** A hidden "vote again" link on the poll screen (would let attendees bypass the guard).
