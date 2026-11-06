@@ -1,0 +1,26 @@
+.summary {
+  margin: var(--space-2) 0 var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
+.list {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Two columns on tablets and up, so more guests fit on screen. */
+@media (min-width: 48rem) {
+  .list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.moreHint {
+  margin-top: var(--space-4);
+  text-align: center;
+  color: var(--color-muted);
+}
