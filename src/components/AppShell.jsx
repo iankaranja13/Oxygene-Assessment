@@ -3,6 +3,7 @@ import { Outlet } from 'react-router';
 import { useStaffAccess } from '../hooks/useStaffAccess.js';
 import styles from './AppShell.module.css';
 import BottomNav from './BottomNav.jsx';
+import { ConnectionBadge, ConnectionBanner } from './ConnectionStatus.jsx';
 import { LockIcon } from './icons.jsx';
 import Wordmark from './Wordmark.jsx';
 
@@ -20,17 +21,21 @@ export default function AppShell() {
         <div className={styles.headerInner}>
           <Wordmark />
           {isStaff && (
-            <button
-              type="button"
-              className={styles.lockButton}
-              onClick={lock}
-              aria-label="Lock staff screens on this device"
-            >
-              <LockIcon size={18} />
-              Lock
-            </button>
+            <div className={styles.headerActions}>
+              <ConnectionBadge />
+              <button
+                type="button"
+                className={styles.lockButton}
+                onClick={lock}
+                aria-label="Lock staff screens on this device"
+              >
+                <LockIcon size={18} />
+                Lock
+              </button>
+            </div>
           )}
         </div>
+        <ConnectionBanner />
       </header>
       <main
         id={MAIN_CONTENT_ID}
